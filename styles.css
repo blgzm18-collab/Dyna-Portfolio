@@ -1,12 +1,9 @@
-/* styles.css - Professional Dark Red + Black Theme for Dynamexed */
-
 :root {
   --bg: #0a0a0a;
   --surface: #121212;
   --text: #e0e0e0;
   --accent: #8B0000;
   --highlight: #ff3333;
-  --card-border: rgba(139, 0, 0, 0.3);
 }
 
 * {
@@ -17,9 +14,8 @@
 
 body {
   font-family: 'Segoe UI', system-ui, sans-serif;
-  background-color: var(--bg);
+  background: var(--bg);
   color: var(--text);
-  line-height: 1.7;
 }
 
 /* Navbar */
@@ -28,15 +24,15 @@ body {
   top: 0;
   width: 100%;
   background: rgba(10, 10, 10, 0.98);
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(12px);
   z-index: 1000;
-  border-bottom: 1px solid var(--card-border);
+  border-bottom: 1px solid #300000;
 }
 
 .nav-content {
-  max-width: 1400px;
+  max-width: 1300px;
   margin: 0 auto;
-  padding: 1.1rem 3rem;
+  padding: 1.2rem 2.5rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -49,22 +45,20 @@ body {
 }
 
 .logo-img {
-  height: 45px;
+  height: 46px;
   border: 2px solid var(--accent);
   border-radius: 6px;
-  padding: 3px;
-  background: #1a1a1a;
 }
 
 .logo-name {
-  font-size: 1.9rem;
+  font-size: 1.95rem;
   font-weight: 700;
   color: var(--highlight);
 }
 
 .nav-links {
   display: flex;
-  gap: 2.8rem;
+  gap: 2.5rem;
   list-style: none;
 }
 
@@ -72,7 +66,6 @@ body {
   color: var(--text);
   text-decoration: none;
   font-weight: 500;
-  transition: color 0.3s;
 }
 
 .nav-links a:hover {
@@ -81,13 +74,12 @@ body {
 
 .social-links {
   display: flex;
-  gap: 1.5rem;
+  gap: 1.4rem;
 }
 
 .social-links a {
   color: var(--text);
   font-size: 1.5rem;
-  transition: color 0.3s;
 }
 
 .social-links a:hover {
@@ -101,12 +93,11 @@ body {
   align-items: center;
   justify-content: center;
   text-align: center;
-  background: linear-gradient(135deg, #0a0a0a, #1f0000);
+  background: linear-gradient(135deg, #0a0a0a 0%, #1f0000 100%);
 }
 
 .hero-content h1 {
-  font-size: 4rem;
-  margin-bottom: 1rem;
+  font-size: 4.2rem;
 }
 
 .highlight {
@@ -114,18 +105,15 @@ body {
 }
 
 .subtitle {
-  font-size: 1.5rem;
-  margin-bottom: 2.5rem;
-  opacity: 0.9;
+  font-size: 1.6rem;
+  margin: 1.2rem 0 2.8rem;
 }
 
 .btn {
-  padding: 14px 34px;
+  padding: 14px 32px;
   border-radius: 8px;
   font-weight: 600;
   text-decoration: none;
-  display: inline-block;
-  margin: 0 10px;
   transition: all 0.3s;
 }
 
@@ -136,7 +124,6 @@ body {
 
 .primary:hover {
   background: var(--highlight);
-  transform: translateY(-3px);
 }
 
 .secondary {
@@ -151,7 +138,7 @@ body {
 
 /* Sections */
 .section {
-  padding: 100px 3rem;
+  padding: 110px 2.5rem;
   max-width: 1300px;
   margin: 0 auto;
 }
@@ -159,22 +146,20 @@ body {
 h2 {
   font-size: 2.8rem;
   text-align: center;
-  margin-bottom: 3.5rem;
-  position: relative;
+  margin-bottom: 3rem;
 }
 
 h2::after {
   content: '';
-  position: absolute;
-  bottom: -12px;
-  left: 50%;
-  transform: translateX(-50%);
+  display: block;
   width: 80px;
   height: 4px;
   background: linear-gradient(to right, var(--accent), var(--highlight));
+  margin: 12px auto 0;
+  border-radius: 2px;
 }
 
-/* Models Section */
+/* Models */
 .models-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
@@ -185,22 +170,12 @@ h2::after {
   background: var(--surface);
   border-radius: 12px;
   overflow: hidden;
-  border: 1px solid var(--card-border);
-  transition: all 0.4s;
-}
-
-.model-card:hover {
-  transform: translateY(-10px);
-  border-color: var(--highlight);
+  border: 1px solid #300000;
 }
 
 .model-preview {
-  height: 240px;
+  height: 250px;
   background: #1a1a1a;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
 }
 
 .model-preview img {
@@ -210,7 +185,7 @@ h2::after {
 }
 
 .model-info {
-  padding: 1.5rem;
+  padding: 1.6rem;
 }
 
 .model-info h3 {
@@ -218,27 +193,20 @@ h2::after {
   margin-bottom: 0.8rem;
 }
 
-.model-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 1rem 0;
-}
-
 .model-tags span {
-  background: rgba(139, 0, 0, 0.25);
+  background: #300000;
   color: #ff6666;
-  padding: 5px 12px;
+  padding: 4px 12px;
   border-radius: 20px;
   font-size: 0.85rem;
+  margin-right: 8px;
 }
 
-/* About, Skills, Contact */
+/* About */
 .about-content {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 4rem;
-  align-items: center;
 }
 
 .about-image img {
@@ -247,20 +215,7 @@ h2::after {
   border: 3px solid var(--accent);
 }
 
-.skills-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 1.2rem;
-}
-
-.skill-card {
-  background: var(--surface);
-  padding: 1.5rem;
-  text-align: center;
-  border-radius: 10px;
-  border: 1px solid var(--card-border);
-}
-
+/* Contact & Footer */
 .contact {
   text-align: center;
 }
@@ -269,18 +224,16 @@ footer {
   text-align: center;
   padding: 3rem;
   background: #080808;
-  color: #666;
+  color: #777;
 }
 
 /* Responsive */
 @media (max-width: 768px) {
   .nav-content {
-    padding: 1rem 1.5rem;
+    flex-direction: column;
+    gap: 1rem;
   }
   .nav-links {
     gap: 1.5rem;
-  }
-  .hero h1 {
-    font-size: 2.8rem;
   }
 }
