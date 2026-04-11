@@ -4,7 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dynamexed | Developer</title>
-  <link rel="stylesheet" href="styles.css"> 
+  
+  <!-- Link to CSS - Make sure this path is correct -->
+  <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
@@ -12,13 +14,11 @@
   <!-- Navbar -->
   <nav class="navbar">
     <div class="nav-content">
-      <!-- Left: Logo + Name -->
       <div class="logo-container">
         <img src="assets/images/logo.png" alt="Dynamexed Logo" class="logo-img">
         <span class="logo-name">Dynamexed</span>
       </div>
 
-      <!-- Center Navigation -->
       <ul class="nav-links">
         <li><a href="#models">Models</a></li>
         <li><a href="#projects">Projects</a></li>
@@ -26,21 +26,22 @@
         <li><a href="#contact">Contact</a></li>
       </ul>
 
-      <!-- Right: Social Links -->
       <div class="social-links">
-        <a href="https://discord.com/users/yourid" target="_blank" title="Discord"><i class="fab fa-discord"></i></a>
+        <a href="https://github.com/yourusername" target="_blank"><i class="fab fa-github"></i></a>
+        <a href="https://linkedin.com/in/yourusername" target="_blank"><i class="fab fa-linkedin"></i></a>
+        <a href="https://discord.com/users/yourid" target="_blank"><i class="fab fa-discord"></i></a>
       </div>
     </div>
   </nav>
 
-  <!-- Hero Section -->
+  <!-- Hero -->
   <section id="hero" class="hero">
     <div class="hero-content">
       <h1>Hi, I'm <span class="highlight">Dynamexed</span></h1>
-      <p class="subtitle">Full Stack Developer &amp; 3D Model Creator</p>
+      <p class="subtitle">Full Stack Developer & 3D Model Creator</p>
       <div class="hero-buttons">
         <a href="#models" class="btn primary">Explore My Models</a>
-        <a href="#contact" class="btn secondary">Get In Touch</a>
+        <a href="#contact" class="btn secondary">Contact Me</a>
       </div>
     </div>
   </section>
@@ -49,25 +50,21 @@
   <section id="models" class="section">
     <h2>My 3D Models</h2>
     <div class="models-grid">
-      <!-- Model Card 1 -->
       <div class="model-card">
         <div class="model-preview">
           <img src="assets/images/model1.jpg" alt="Model 1">
-          <!-- You can later replace with actual 3D viewer like Sketchfab embed -->
         </div>
         <div class="model-info">
           <h3>Model Name One</h3>
-          <p>High-detail 3D model created in Blender. Includes textures and rigging.</p>
+          <p>High-detail 3D model created in Blender with textures and rigging.</p>
           <div class="model-tags">
             <span>Blender</span>
-            <span>Substance Painter</span>
             <span>Low Poly</span>
           </div>
           <a href="#" class="btn primary small">View Model</a>
         </div>
       </div>
 
-      <!-- Model Card 2 -->
       <div class="model-card">
         <div class="model-preview">
           <img src="assets/images/model2.jpg" alt="Model 2">
@@ -78,13 +75,11 @@
           <div class="model-tags">
             <span>Character</span>
             <span>Rigged</span>
-            <span>Unity Ready</span>
           </div>
           <a href="#" class="btn primary small">View Model</a>
         </div>
       </div>
 
-      <!-- Model Card 3 -->
       <div class="model-card">
         <div class="model-preview">
           <img src="assets/images/model3.jpg" alt="Model 3">
@@ -102,28 +97,12 @@
     </div>
   </section>
 
-  <!-- Projects Section -->
-  <section id="projects" class="section">
-    <h2>Featured Projects</h2>
-    <div class="projects-grid">
-      <div class="project-card">
-        <h3>Project Title 1</h3>
-        <p>Full-stack web application built with React and Node.js.</p>
-        <div class="tech-stack">
-          <span>React</span><span>Node.js</span><span>MongoDB</span>
-        </div>
-      </div>
-      <!-- Add more project cards here -->
-    </div>
-  </section>
-
-  <!-- About Me -->
+  <!-- About -->
   <section id="about" class="section">
     <h2>About Me</h2>
     <div class="about-content">
       <div class="about-text">
-        <p>I'm Dynamexed, a passionate full-stack developer and 3D artist. I specialize in creating immersive digital experiences through both planning and 3D modeling.</p>
-        <p>With expertise in modern web technologies and Blender, I bring ideas to life — whether it's a sleek game or a detailed 3D model ready for games and visualization.</p>
+        <p>I'm Dynamexed, a passionate full-stack developer and 3D artist. I create immersive experiences through code and detailed 3D models.</p>
       </div>
       <div class="about-image">
         <img src="assets/images/profile.jpg" alt="Dynamexed">
@@ -131,28 +110,15 @@
     </div>
   </section>
 
-  <!-- Skills -->
-  <section id="skills" class="section">
-    <h2>Skills & Technologies</h2>
-    <div class="skills-grid">
-      <div class="skill-card">Experience: 2 years</div>
-      <div class="skill-card">Blender</div>
-      <div class="skill-card">Substance Painter</div>
-      <div class="skill-card">Base Texturing</div>
-      <div class="skill-card">Low Poly Modeling</div>
-      <div class="skill-card">Roblox Studio</div>
-    </div>
-  </section>
-
   <!-- Contact -->
   <section id="contact" class="section contact">
     <h2>Contact Me</h2>
-    <p>I'm currently open to freelance 3D modeling work, web development projects, and collaborations.</p>
-    <a href="mailto:your.email@example.com" class="btn primary">Send Me a Message</a>
+    <p>I'm open to freelance work, collaborations, and new opportunities.</p>
+    <a href="mailto:your.email@example.com" class="btn primary">Send Message</a>
   </section>
 
   <footer>
-    <p>&copy; 2026 Dynamexed. All Rights Reserved.</p>
+    <p>&copy; 2026 Dynamexed. Built with passion.</p>
   </footer>
 
   <script src="script.js"></script>
