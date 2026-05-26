@@ -3,121 +3,118 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dynamexed | Developer</title>
-  
-  <!-- Link to CSS - Make sure this path is correct -->
-  <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <title>Dynamexed Portfolio</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <nav style="display: flex; ">
 
-  <!-- Navbar -->
-  <nav class="navbar">
-    <div>
-      <img src="DMX_Logo_Transparent.webp" alt="Dynamexed" class="logo-img">
-      </div>
+  <div class="section1" style="display: flex; padding: 0px 0px 0px 100px;flex-direction: row; align-items: center; gap: 15px; width: 25%;">
+    <img src="michal-vrba-A8kkLmuCub8-unsplash.jpg" style="height: 48px; width: 48px; border-radius: 0px;">
+    <h1>DYNAMEXED</h1>
+  </div>
 
-      <ul class="nav-links">
-        <li><a href="#models">Models</a></li>
-        <li><a href="#projects">Projects</a></li>
-        <li><a href="#about">About Me</a></li>
-        <li><a href="#contact">Contact</a></li>
-      </ul>
+  <div class="section2">
+    <button onclick="document.getElementById('aboutMe').scrollIntoView({behavior: 'smooth'});">
+      About Me
+    </button> 
+    <button onclick="document.getElementById('projects').scrollIntoView({behavior: 'smooth'});">
+      Projects
+    </button> 
+    <button onclick="document.getElementById('footer').scrollIntoView({behavior: 'smooth'});">
+      Contact
+    </button> 
+  </div>
 
-      <div class="social-links">
-        <a href="https://github.com/yourusername" target="_blank"><i class="fab fa-github"></i></a>
-        <a href="https://linkedin.com/in/yourusername" target="_blank"><i class="fab fa-linkedin"></i></a>
-        <a href="https://discord.com/users/yourid" target="_blank"><i class="fab fa-discord"></i></a>
+  <div class="section3" style="width: 25%; margin-left: auto;">
+    <div class="social-links">
+      <a href="#" aria-label="Email"><svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="red" class="bi bi-envelope-at-fill" viewBox="0 0 16 16">
+      <path d="M2 2A2 2 0 0 0 .05 3.555L8 8.414l7.95-4.859A2 2 0 0 0 14 2zm-2 9.8V4.698l5.803 3.546zm6.761-2.97-6.57 4.026A2 2 0 0 0 2 14h6.256A4.5 4.5 0 0 1 8 12.5a4.49 4.49 0 0 1 1.606-3.446l-.367-.225L8 9.586zM16 9.671V4.697l-5.803 3.546.338.208A4.5 4.5 0 0 1 12.5 8c1.414 0 2.675.652 3.5 1.671"/>
+      <path d="M15.834 12.244c0 1.168-.577 2.025-1.587 2.025-.503 0-1.002-.228-1.12-.648h-.043c-.118.416-.543.643-1.015.643-.77 0-1.259-.542-1.259-1.434v-.529c0-.844.481-1.4 1.26-1.4.585 0 .87.333.953.63h.03v-.568h.905v2.19c0 .272.18.42.411.42.315 0 .639-.415.639-1.39v-.118c0-1.277-.95-2.326-2.484-2.326h-.04c-1.582 0-2.64 1.067-2.64 2.724v.157c0 1.867 1.237 2.654 2.57 2.654h.045c.507 0 .935-.07 1.18-.18v.731c-.219.1-.643.175-1.237.175h-.044C10.438 16 9 14.82 9 12.646v-.214C9 10.36 10.421 9 12.485 9h.035c2.12 0 3.314 1.43 3.314 3.034zm-4.04.21v.227c0 .586.227.8.581.8.31 0 .564-.17.564-.743v-.367c0-.516-.275-.708-.572-.708-.346 0-.573.245-.573.791"/>
+      </svg></a>
+
+      <a href="https://www.youtube.com/@Dynamexed" aria-label="Youtube"><svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="red" class="bi bi-youtube" viewBox="0 0 16 16">
+      <path d="M8.051 1.999h.089c.822.003 4.987.033 6.11.335a2.01 2.01 0 0 1 1.415 1.42c.101.38.172.883.22 1.402l.01.104.022.26.008.104c.065.914.073 1.77.074 1.957v.075c-.001.194-.01 1.108-.082 2.06l-.008.105-.009.104c-.05.572-.124 1.14-.235 1.558a2.01 2.01 0 0 1-1.415 1.42c-1.16.312-5.569.334-6.18.335h-.142c-.309 0-1.587-.006-2.927-.052l-.17-.006-.087-.004-.171-.007-.171-.007c-1.11-.049-2.167-.128-2.654-.26a2.01 2.01 0 0 1-1.415-1.419c-.111-.417-.185-.986-.235-1.558L.09 9.82l-.008-.104A31 31 0 0 1 0 7.68v-.123c.002-.215.01-.958.064-1.778l.007-.103.003-.052.008-.104.022-.26.01-.104c.048-.519.119-1.023.22-1.402a2.01 2.01 0 0 1 1.415-1.42c.487-.13 1.544-.21 2.654-.26l.17-.007.172-.006.086-.003.171-.007A100 100 0 0 1 7.858 2zM6.4 5.209v4.818l4.157-2.408z"/>
+      </svg></a>
+
+      <a href="#" aria-label="Discord"><svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="red" class="bi bi-discord" viewBox="0 0 16 16">
+      <path d="M13.545 2.907a13.2 13.2 0 0 0-3.257-1.011.05.05 0 0 0-.052.025c-.141.25-.297.577-.406.833a12.2 12.2 0 0 0-3.658 0 8 8 0 0 0-.412-.833.05.05 0 0 0-.052-.025c-1.125.194-2.22.534-3.257 1.011a.04.04 0 0 0-.021.018C.356 6.024-.213 9.047.066 12.032q.003.022.021.037a13.3 13.3 0 0 0 3.995 2.02.05.05 0 0 0 .056-.019q.463-.63.818-1.329a.05.05 0 0 0-.01-.059l-.018-.011a9 9 0 0 1-1.248-.595.05.05 0 0 1-.02-.066l.015-.019q.127-.095.248-.195a.05.05 0 0 1 .051-.007c2.619 1.196 5.454 1.196 8.041 0a.05.05 0 0 1 .053.007q.121.1.248.195a.05.05 0 0 1-.004.085 8 8 0 0 1-1.249.594.05.05 0 0 0-.03.03.05.05 0 0 0 .003.041c.24.465.515.909.817 1.329a.05.05 0 0 0 .056.019 13.2 13.2 0 0 0 4.001-2.02.05.05 0 0 0 .021-.037c.334-3.451-.559-6.449-2.366-9.106a.03.03 0 0 0-.02-.019m-8.198 7.307c-.789 0-1.438-.724-1.438-1.612s.637-1.613 1.438-1.613c.807 0 1.45.73 1.438 1.613 0 .888-.637 1.612-1.438 1.612m5.316 0c-.788 0-1.438-.724-1.438-1.612s.637-1.613 1.438-1.613c.807 0 1.451.73 1.438 1.613 0 .888-.631 1.612-1.438 1.612"/>
+      </svg></a>
       </div>
     </div>
   </nav>
 
-  <!-- Hero -->
-  <section id="hero" class="hero">
-    <div class="hero-content">
-      <h1>Hi, I'm <span class="highlight">Dynamexed</span></h1>
-      <p class="subtitle">Full Stack Developer & 3D Model Creator</p>
-      <div class="hero-buttons">
-        <a href="#models" class="btn primary">Explore My Models</a>
-        <a href="#contact" class="btn secondary">Contact Me</a>
+  <header>
+
+    <section id="aboutMe">
+        <div class="container">
+          <h1 class="background-text">DYNAMEXED</h1>
+          <div class="text">
+            <h2 class="foreground-text">About ME</h2>
+            <p class="foreground-p">I am a sophomore in Highschool empowering my community and thriving for a better future for all. I am a 3D modeler with great skills,</p>
+          </div>
+        </div>
+    </section>
+
+    <section id="projects">
+      <h1>Projects</h1>
+      <div class="projects">
+
+        <div class="project">
+          <img src="rostislav-uzunov-YygDC2m_0lY-unsplash.jpg">
+          <h1>Monster Chair</h1>
+          <p>This chair has an outline that can be seen in any game</p>
+        </div>
+
+        <div class="project">
+          <img src="sophia-qY3p4-PzdEQ-unsplash.jpg">
+          <h1>Monster Chair</h1>
+          <p>This chair has an outline that can be seen in any game</p>
+        </div>
+
+        <div class="project">
+          <img src="nasa-rTZW4f02zY8-unsplash.jpg">
+          <h1>Monster Chair</h1>
+          <p>This chair has an outline that can be seen in any game</p>
+        </div>
+
+      </div>
+
+    </section>
+
+  </header>
+
+  <footer id="footer" class="site-footer">
+    <div class="footer-content">
+      <!-- Column 1: Brand & About -->
+      <div class="footer-column">
+        <h3>@DYAMEXED</h3>
+        <p>Innovating the future of digital experiences.</p>
+        <div class="social-links">
+          <a href="#" aria-label="Email"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="red" class="bi bi-envelope-at-fill" viewBox="0 0 16 16">
+  <path d="M2 2A2 2 0 0 0 .05 3.555L8 8.414l7.95-4.859A2 2 0 0 0 14 2zm-2 9.8V4.698l5.803 3.546zm6.761-2.97-6.57 4.026A2 2 0 0 0 2 14h6.256A4.5 4.5 0 0 1 8 12.5a4.49 4.49 0 0 1 1.606-3.446l-.367-.225L8 9.586zM16 9.671V4.697l-5.803 3.546.338.208A4.5 4.5 0 0 1 12.5 8c1.414 0 2.675.652 3.5 1.671"/>
+  <path d="M15.834 12.244c0 1.168-.577 2.025-1.587 2.025-.503 0-1.002-.228-1.12-.648h-.043c-.118.416-.543.643-1.015.643-.77 0-1.259-.542-1.259-1.434v-.529c0-.844.481-1.4 1.26-1.4.585 0 .87.333.953.63h.03v-.568h.905v2.19c0 .272.18.42.411.42.315 0 .639-.415.639-1.39v-.118c0-1.277-.95-2.326-2.484-2.326h-.04c-1.582 0-2.64 1.067-2.64 2.724v.157c0 1.867 1.237 2.654 2.57 2.654h.045c.507 0 .935-.07 1.18-.18v.731c-.219.1-.643.175-1.237.175h-.044C10.438 16 9 14.82 9 12.646v-.214C9 10.36 10.421 9 12.485 9h.035c2.12 0 3.314 1.43 3.314 3.034zm-4.04.21v.227c0 .586.227.8.581.8.31 0 .564-.17.564-.743v-.367c0-.516-.275-.708-.572-.708-.346 0-.573.245-.573.791"/>
+</svg></a>
+          <a href="https://www.youtube.com/@Dynamexed" aria-label="Youtube"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="red" class="bi bi-youtube" viewBox="0 0 16 16">
+  <path d="M8.051 1.999h.089c.822.003 4.987.033 6.11.335a2.01 2.01 0 0 1 1.415 1.42c.101.38.172.883.22 1.402l.01.104.022.26.008.104c.065.914.073 1.77.074 1.957v.075c-.001.194-.01 1.108-.082 2.06l-.008.105-.009.104c-.05.572-.124 1.14-.235 1.558a2.01 2.01 0 0 1-1.415 1.42c-1.16.312-5.569.334-6.18.335h-.142c-.309 0-1.587-.006-2.927-.052l-.17-.006-.087-.004-.171-.007-.171-.007c-1.11-.049-2.167-.128-2.654-.26a2.01 2.01 0 0 1-1.415-1.419c-.111-.417-.185-.986-.235-1.558L.09 9.82l-.008-.104A31 31 0 0 1 0 7.68v-.123c.002-.215.01-.958.064-1.778l.007-.103.003-.052.008-.104.022-.26.01-.104c.048-.519.119-1.023.22-1.402a2.01 2.01 0 0 1 1.415-1.42c.487-.13 1.544-.21 2.654-.26l.17-.007.172-.006.086-.003.171-.007A100 100 0 0 1 7.858 2zM6.4 5.209v4.818l4.157-2.408z"/>
+</svg></a>
+          <a href="#" aria-label="Discord"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="red" class="bi bi-discord" viewBox="0 0 16 16">
+  <path d="M13.545 2.907a13.2 13.2 0 0 0-3.257-1.011.05.05 0 0 0-.052.025c-.141.25-.297.577-.406.833a12.2 12.2 0 0 0-3.658 0 8 8 0 0 0-.412-.833.05.05 0 0 0-.052-.025c-1.125.194-2.22.534-3.257 1.011a.04.04 0 0 0-.021.018C.356 6.024-.213 9.047.066 12.032q.003.022.021.037a13.3 13.3 0 0 0 3.995 2.02.05.05 0 0 0 .056-.019q.463-.63.818-1.329a.05.05 0 0 0-.01-.059l-.018-.011a9 9 0 0 1-1.248-.595.05.05 0 0 1-.02-.066l.015-.019q.127-.095.248-.195a.05.05 0 0 1 .051-.007c2.619 1.196 5.454 1.196 8.041 0a.05.05 0 0 1 .053.007q.121.1.248.195a.05.05 0 0 1-.004.085 8 8 0 0 1-1.249.594.05.05 0 0 0-.03.03.05.05 0 0 0 .003.041c.24.465.515.909.817 1.329a.05.05 0 0 0 .056.019 13.2 13.2 0 0 0 4.001-2.02.05.05 0 0 0 .021-.037c.334-3.451-.559-6.449-2.366-9.106a.03.03 0 0 0-.02-.019m-8.198 7.307c-.789 0-1.438-.724-1.438-1.612s.637-1.613 1.438-1.613c.807 0 1.45.73 1.438 1.613 0 .888-.637 1.612-1.438 1.612m5.316 0c-.788 0-1.438-.724-1.438-1.612s.637-1.613 1.438-1.613c.807 0 1.451.73 1.438 1.613 0 .888-.631 1.612-1.438 1.612"/>
+</svg></a>
+        </div>
+      </div>
+
+    <!-- Bottom Bar: Copyright & Legal -->
+    <div class="footer-bottom">
+      <p>&copy; @DYAMEXED 2026. All rights reserved.</p>
+      <div class="legal-links">
+        <a href="/privacy">Privacy</a>
+        <a href="/terms">Terms</a>
+        <a href="/cookies">Cookies</a>
       </div>
     </div>
-  </section>
+  </footer>   
 
-  <!-- 3D Models Section -->
-  <section id="models" class="section">
-    <h2>My 3D Models</h2>
-    <div class="models-grid">
-      <div class="model-card">
-        <div class="model-preview">
-          <img src="" alt="Model 1">
-        </div>
-        <div class="model-info">
-          <h3>Mnster Chair</h3>
-          <p>High-detail 3D model created in Blender with textures and rigging.</p>
-          <div class="model-tags">
-            <span>Blender</span>
-            <span>Low Poly</span>
-          </div>
-          <a href="#" class="btn primary small">View Model</a>
-        </div>
-      </div>
-
-      <div class="model-card">
-        <div class="model-preview">
-          <img src="assets/images/model2.jpg" alt="Model 2">
-        </div>
-        <div class="model-info">
-          <h3>Model Name Two</h3>
-          <p>Realistic character model with PBR materials and animations.</p>
-          <div class="model-tags">
-            <span>Character</span>
-            <span>Rigged</span>
-          </div>
-          <a href="#" class="btn primary small">View Model</a>
-        </div>
-      </div>
-
-      <div class="model-card">
-        <div class="model-preview">
-          <img src="assets/images/model3.jpg" alt="Model 3">
-        </div>
-        <div class="model-info">
-          <h3>Model Name Three</h3>
-          <p>Environment asset pack for game development.</p>
-          <div class="model-tags">
-            <span>Environment</span>
-            <span>UE5</span>
-          </div>
-          <a href="#" class="btn primary small">View Model</a>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- About -->
-  <section id="about" class="section">
-    <h2>About Me</h2>
-    <div class="about-content">
-      <div class="about-text">
-        <p>Dynamexed is a Sophomore in Highschool, aspiring for a better world with a dream of his own. Seeking success, and empowering a healthy Community since November 17th 2010.</p>
-      </div>
-      <div class="about-image">
-        <img src="assets/images/profile.jpg" alt="Dynamexed">
-      </div>
-    </div>
-  </section>
-
-  <!-- Contact -->
-  <section id="contact" class="section contact">
-    <h2>Contact Me</h2>
-    <p>I'm open to work, collaborations, and new opportunities.</p>
-    <a href="mailto:your.email@example.com" class="btn primary">Send Message</a>
-  </section>
-
-  <footer>
-    <p>&copy; 2026 Dynamexed. Built with passion.</p>
-  </footer>
 
   <script src="script.js"></script>
 </body>
