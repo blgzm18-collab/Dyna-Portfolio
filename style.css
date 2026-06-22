@@ -228,19 +228,22 @@ p{
 }
 
 .container {
-    position: relative; /* Acts as the anchor for the overlapping text */
-    height: 80%;
-    width: 80%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid rgba(255, 0, 0, 0.25);
-    box-shadow: 4px 4px 20px 10px rgba(0, 0, 0, 0.3);
-    border-radius: 50px;
-    background-image: url("Dyna.png");
-
-}
-
+  position: relative;
+  height: 80%;
+  width: 80%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 0, 0, 0.25);
+  box-shadow: 4px 4px 20px 10px rgba(0, 0, 0, 0.3);
+  border-radius: 50px;
+  
+  /* Background Image Properties */
+  background-image: url("Dyna.png");
+  background-size: cover;      /* Scales image to cover entire area without tiling */
+  background-position: center; /* Centers the image */
+  background-repeat: no-repeat;/* Prevents tiling */
+}   
 
 .background-text {
     position: absolute;
