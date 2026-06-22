@@ -243,7 +243,7 @@ p{
 
 .background-text {
     position: absolute;
-    font-size: 8rem;
+    font-size: 7rem;
     color: rgba(255, 255, 255, 0.5); /* Light gray to look like a background */
     z-index: 2;    /* Lower number stays behind */
     margin: 0;
