@@ -9,8 +9,6 @@ body{
 
 }
 
-
-
 section {
     display: flex;
     height: 100vh;
@@ -312,7 +310,6 @@ p{
   border-radius: 50px;
   align-items: center;
   padding: 50px 0px;
-
 
 }
 
