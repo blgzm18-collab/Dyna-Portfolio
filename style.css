@@ -252,6 +252,14 @@ p{
 
 }
 
+.background-img {
+    position: absolute;
+    z-index: 1;    /* Lower number stays behind */
+    margin: 0;
+    width: 100%;
+
+}
+
 .text{
     display: flex;
     flex-direction: column;
