@@ -237,6 +237,7 @@ p{
     border: 1px solid rgba(255, 0, 0, 0.25);
     box-shadow: 4px 4px 20px 10px rgba(0, 0, 0, 0.3);
     border-radius: 50px;
+    background-image: url("Dyna.png");
 
 }
 
@@ -249,14 +250,6 @@ p{
     margin: 0;
     mix-blend-mode: overlay;
     font-family: "Bodoni MT", Didot, "Playfair Display", serif;
-
-}
-
-.background-img {
-    position: absolute;
-    z-index: 1;    /* Lower number stays behind */
-    margin: 0;
-    width: 100%;
 
 }
 
