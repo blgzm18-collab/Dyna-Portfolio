@@ -249,7 +249,7 @@ p{
     color: rgba(255, 255, 255, 0.5); /* Light gray to look like a background */
     z-index: 2;    /* Lower number stays behind */
     margin: 0;
-    mix-blend-mode: screen;
+    mix-blend-mode: overlay;
     font-family: "Bodoni MT", Didot, "Playfair Display", serif;
 
 }
