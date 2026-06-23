@@ -322,7 +322,7 @@ p{
 /* Ensure images inside project cards behave correctly */
 .project img {
   display: block; /* Removes extra bottom space */
-  width: 100%;
+  width: 50%;
   height: auto;
   flex-shrink: 0; /* Prevents image from squishing */
   border-radius: 50px;
