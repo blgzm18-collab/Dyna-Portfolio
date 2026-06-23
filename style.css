@@ -309,7 +309,7 @@ p{
      32% is a safe estimate for 3 items with 15px gaps */
   width: calc(33.333% - 10px); 
   min-width: 280px; /* Prevents shrinking too small on mobile */
-  max-height: 600px;
+  max-height: 500px;
   height: 100%; /* Ensures the card fills the available height */
   border: 1px solid rgba(255, 0, 0, 0.25);
   box-shadow: 4px 4px 20px 10px rgba(0, 0, 0, 0.3);
