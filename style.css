@@ -295,26 +295,38 @@ p{
 .projects {
   display: flex;
   flex-direction: row;
+  flex-wrap: wrap; /* Allows items to wrap to the next row */
   gap: 15px;
+  justify-content: center; /* Centers the rows */
+  width: 100%;
 }
 
 .project {
   flex-direction: column;
   display: flex;
   backdrop-filter: blur(5px);
-  max-width: 400px;
+  /* Calculate width: 100% / 3 items minus gaps. 
+     32% is a safe estimate for 3 items with 15px gaps */
+  width: calc(33.333% - 10px); 
+  min-width: 280px; /* Prevents shrinking too small on mobile */
   max-height: 400px;
+  height: 100%; /* Ensures the card fills the available height */
   border: 1px solid rgba(255, 0, 0, 0.25);
   box-shadow: 4px 4px 20px 10px rgba(0, 0, 0, 0.3);
   border-radius: 50px;
   align-items: center;
   padding: 50px 0px;
+  box-sizing: border-box; /* Ensures padding doesn't break width calculation */
 }
 
-img{
-  display: flex;
-  flex: 1;
+/* Ensure images inside project cards behave correctly */
+.project img {
+  display: block; /* Removes extra bottom space */
+  width: 100%;
+  height: auto;
+  flex-shrink: 0; /* Prevents image from squishing */
   border-radius: 50px;
   border: 1px solid rgba(255, 0, 0, 0.25);
   box-shadow: 4px 4px 20px 10px rgba(0, 0, 0, 0.3);
+  object-fit: cover; /* Keeps image aspect ratio while filling space */
 }
