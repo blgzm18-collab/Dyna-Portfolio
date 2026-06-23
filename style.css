@@ -6,7 +6,6 @@ body{
     background-attachment: fixed;
     background-position: center;
     z-index: 1;
-
 }
 
 section {
@@ -251,7 +250,6 @@ p{
     margin: 0;
     mix-blend-mode: screen;
     font-family: "Bodoni MT", Didot, "Playfair Display", serif;
-
 }
 
 .text{
@@ -310,7 +308,6 @@ p{
   border-radius: 50px;
   align-items: center;
   padding: 50px 0px;
-
 }
 
 img{
