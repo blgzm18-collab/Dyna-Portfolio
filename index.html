@@ -1,122 +1,590 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dynamexed's Portfolio</title>
-  <link rel="stylesheet" href="style.css">
-  <link rel="icon" href="DMX_Logo_Transparent.png">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dynamexed — 3D Asset Artist</title>
+<link rel="icon" href="DMX_Logo_Transparent.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+
+  /* ============ TOKENS ============ */
+  :root{
+    --bg:        #0a0a0a;
+    --surface:   #141414;
+    --surface-2: #1c1c1c;
+    --line:      #2c2c2c;
+    --text:      #f2f2f2;
+    --text-dim:  #8a8a8a;
+    --accent:    #e2172b;
+    --accent-dim:#7a1019;
+
+    --display: 'Rajdhani', sans-serif;
+    --mono:    'JetBrains Mono', monospace;
+    --body:    'Inter', sans-serif;
+  }
+
+  *{ box-sizing:border-box; margin:0; padding:0; }
+
+  html{ scroll-behavior:smooth; }
+
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--body);
+    line-height:1.6;
+    background-image:
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size:48px 48px;
+    background-position:center top;
+    background-attachment:fixed;
+  }
+
+  a{ color:inherit; text-decoration:none; }
+  img{ max-width:100%; display:block; }
+
+  ::selection{ background:var(--accent); color:#0a0a0a; }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:0.01ms !important; animation-iteration-count:1 !important; transition-duration:0.01ms !important; scroll-behavior:auto !important; }
+  }
+
+  /* ============ UTILITY: HUD LABEL ============ */
+  .hud-tag{
+    font-family:var(--mono);
+    font-size:0.72rem;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--accent-dim);
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+  }
+  .hud-tag::before{
+    content:'';
+    width:6px; height:6px;
+    background:var(--accent-dim);
+    border-radius:1px;
+    flex-shrink:0;
+  }
+
+  /* ============ NAV ============ */
+  nav{
+    position:sticky; top:0; z-index:50;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:16px 40px;
+    background:rgba(19,20,23,0.86);
+    backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--line);
+  }
+
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:14px;
+  }
+  .brand img{
+    height:38px; width:38px;
+    border-radius:6px;
+    border:1px solid var(--line);
+  }
+  .brand h1{
+    font-family:var(--display);
+    font-weight:700;
+    font-size:1.35rem;
+    letter-spacing:0.05em;
+  }
+  .brand .hud-tag{ margin-left:2px; }
+
+  .nav-links{
+    display:flex;
+    gap:6px;
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:4px;
+  }
+  .nav-links button{
+    font-family:var(--mono);
+    font-size:0.8rem;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    background:transparent;
+    border:none;
+    color:var(--text-dim);
+    padding:9px 18px;
+    border-radius:7px;
+    cursor:pointer;
+    transition:background 180ms ease, color 180ms ease;
+  }
+  .nav-links button:hover{ color:var(--text); background:var(--surface-2); }
+  .nav-links button:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+
+  .nav-social{ display:flex; gap:14px; }
+  .nav-social a{
+    width:36px; height:36px;
+    display:flex; align-items:center; justify-content:center;
+    border:1px solid var(--line);
+    border-radius:8px;
+    color:var(--text-dim);
+    transition:color 180ms ease, border-color 180ms ease, transform 180ms ease;
+  }
+  .nav-social a:hover{ color:var(--accent); border-color:var(--accent); transform:translateY(-2px); }
+  .nav-social svg{ width:18px; height:18px; fill:currentColor; }
+
+  .nav-toggle{ display:none; }
+
+  /* ============ HERO / ABOUT ============ */
+  #aboutMe{
+    padding:88px 40px 110px;
+    max-width:1240px;
+    margin:0 auto;
+  }
+  .hero-grid{
+    display:grid;
+    grid-template-columns:1fr 420px;
+    gap:64px;
+    align-items:center;
+  }
+
+  .hero-copy .hud-tag{ margin-bottom:22px; }
+
+  .hero-copy h2{
+    font-family:var(--display);
+    font-weight:700;
+    font-size:clamp(3rem, 7vw, 5.2rem);
+    line-height:0.96;
+    letter-spacing:0.01em;
+    text-transform:uppercase;
+    margin-bottom:26px;
+  }
+  .hero-copy h2 span{ color:var(--accent); }
+
+  .hero-copy p{
+    font-size:1.08rem;
+    color:var(--text-dim);
+    max-width:46ch;
+    margin-bottom:34px;
+  }
+  .hero-copy strong{ color:var(--text); font-weight:600; }
+
+  .hero-cta{ display:flex; gap:14px; flex-wrap:wrap; }
+
+  .btn{
+    font-family:var(--mono);
+    font-size:0.82rem;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    padding:14px 26px;
+    border-radius:9px;
+    cursor:pointer;
+    border:1px solid transparent;
+    transition:transform 180ms ease, background 180ms ease, border-color 180ms ease;
+  }
+  .btn-primary{ background:var(--accent); color:#f2f2f2; font-weight:600; }
+  .btn-primary:hover{ transform:translateY(-2px); }
+  .btn-ghost{ background:transparent; border-color:var(--line); color:var(--text); }
+  .btn-ghost:hover{ border-color:var(--accent-dim); color:var(--accent-dim); }
+
+  /* ---- viewport frame around dyna's photo ---- */
+  .viewport{
+    position:relative;
+    aspect-ratio:3/4;
+    background:
+      radial-gradient(circle at 50% 20%, rgba(226,23,43,0.14), transparent 55%),
+      var(--surface);
+    border:1px solid var(--line);
+    border-radius:16px;
+    overflow:hidden;
+    opacity:0;
+    transform:translateY(14px);
+    animation:vpIn 700ms ease forwards 150ms;
+  }
+  @keyframes vpIn{ to{ opacity:1; transform:translateY(0); } }
+
+  .viewport-grid{
+    position:absolute; inset:0;
+    background-image:
+      linear-gradient(rgba(226,23,43,0.14) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(226,23,43,0.14) 1px, transparent 1px);
+    background-size:28px 28px;
+    -webkit-mask-image:linear-gradient(to bottom, transparent, black 55%, black 100%);
+            mask-image:linear-gradient(to bottom, transparent, black 55%, black 100%);
+  }
+
+  .viewport img{
+    position:absolute; inset:0;
+    width:100%; height:100%;
+    object-fit:cover;
+    object-position:center 18%;
+    filter:saturate(1.04) contrast(1.02);
+  }
+
+  .vp-corner{
+    position:absolute;
+    width:22px; height:22px;
+    border:2px solid var(--accent);
+  }
+  .vp-corner.tl{ top:14px; left:14px; border-right:none; border-bottom:none; }
+  .vp-corner.tr{ top:14px; right:14px; border-left:none; border-bottom:none; }
+  .vp-corner.bl{ bottom:14px; left:14px; border-right:none; border-top:none; }
+  .vp-corner.br{ bottom:14px; right:14px; border-left:none; border-top:none; }
+
+  .vp-readout{
+    position:absolute;
+    font-family:var(--mono);
+    font-size:0.68rem;
+    letter-spacing:0.04em;
+    color:var(--text-dim);
+    background:rgba(19,20,23,0.72);
+    padding:5px 9px;
+    border-radius:5px;
+    border:1px solid var(--line);
+  }
+  .vp-readout.top{ top:14px; left:44px; right:44px; display:flex; justify-content:space-between; }
+  .vp-readout.status{
+    bottom:14px; left:44px; right:44px;
+    display:flex; align-items:center; gap:8px;
+    color:var(--accent-dim);
+  }
+  .vp-readout.status .dot{
+    width:7px; height:7px; border-radius:50%;
+    background:var(--accent-dim);
+    animation:pulse 1.8s ease-in-out infinite;
+  }
+  @keyframes pulse{ 0%,100%{ opacity:1; } 50%{ opacity:0.35; } }
+
+  .gizmo{
+    position:absolute;
+    top:16px; right:44px;
+    width:34px; height:34px;
+  }
+
+  .name-plate{
+    position:absolute;
+    left:44px; bottom:44px;
+    font-family:var(--display);
+    font-weight:600;
+    font-size:1.1rem;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    color:var(--text);
+    background:rgba(19,20,23,0.6);
+    padding:4px 10px;
+    border-left:2px solid var(--accent);
+    display:none;
+  }
+
+  /* ============ PROJECTS ============ */
+  #projects{
+    padding:60px 40px 120px;
+    max-width:1240px;
+    margin:0 auto;
+  }
+
+  .section-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    margin-bottom:44px;
+    gap:24px;
+    flex-wrap:wrap;
+  }
+  .section-head h2{
+    font-family:var(--display);
+    font-weight:700;
+    font-size:clamp(2.2rem, 4vw, 3rem);
+    text-transform:uppercase;
+  }
+  .section-head p{ color:var(--text-dim); max-width:38ch; font-size:0.95rem; }
+
+  .projects{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:26px;
+  }
+
+  .project{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:14px;
+    overflow:hidden;
+    transition:border-color 220ms ease, transform 220ms ease;
+    position:relative;
+  }
+  .project:hover{ border-color:var(--accent); transform:translateY(-4px); }
+
+  .project-media{
+    position:relative;
+    aspect-ratio:4/3;
+    background:var(--surface-2);
+    overflow:hidden;
+  }
+  .project-media img{
+    width:100%; height:100%;
+    object-fit:cover;
+    transition:transform 400ms ease;
+  }
+  .project:hover .project-media img{ transform:scale(1.06); }
+
+  .project-tag{
+    position:absolute;
+    top:12px; left:12px;
+    font-family:var(--mono);
+    font-size:0.65rem;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:var(--text);
+    background:var(--accent);
+    padding:4px 9px;
+    border-radius:5px;
+  }
+
+  .project-body{ padding:22px 22px 26px; }
+  .project-body h1{
+    font-family:var(--display);
+    font-weight:600;
+    font-size:1.3rem;
+    text-transform:uppercase;
+    letter-spacing:0.02em;
+    margin-bottom:8px;
+  }
+  .project-body p{
+    color:var(--text-dim);
+    font-size:0.92rem;
+  }
+
+  /* ============ FOOTER ============ */
+  .site-footer{
+    border-top:1px solid var(--line);
+    background:var(--surface);
+    padding:56px 40px 0;
+  }
+  .footer-content{
+    max-width:1240px;
+    margin:0 auto;
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:32px;
+    flex-wrap:wrap;
+    padding-bottom:40px;
+  }
+  .footer-column h3{
+    font-family:var(--display);
+    font-weight:700;
+    font-size:1.3rem;
+    letter-spacing:0.06em;
+    margin-bottom:10px;
+  }
+  .footer-column p{ color:var(--text-dim); font-size:0.92rem; max-width:34ch; margin-bottom:20px; }
+
+  .social-links{ display:flex; gap:12px; }
+  .social-links a{
+    width:40px; height:40px;
+    display:flex; align-items:center; justify-content:center;
+    border:1px solid var(--line);
+    border-radius:9px;
+    color:var(--text-dim);
+    transition:color 180ms ease, border-color 180ms ease, transform 180ms ease;
+  }
+  .social-links a:hover{ color:var(--accent); border-color:var(--accent); transform:translateY(-2px); }
+  .social-links svg{ width:20px; height:20px; fill:currentColor; }
+
+  .footer-bottom{
+    max-width:1240px;
+    margin:0 auto;
+    border-top:1px solid var(--line);
+    padding:20px 0 24px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:12px;
+    font-family:var(--mono);
+    font-size:0.78rem;
+    color:var(--text-dim);
+  }
+  .legal-links{ display:flex; gap:22px; }
+  .legal-links a:hover{ color:var(--accent-dim); }
+
+  /* ============ RESPONSIVE ============ */
+  @media (max-width: 980px){
+    .hero-grid{ grid-template-columns:1fr; }
+    .viewport{ order:-1; max-width:420px; margin:0 auto; }
+    .projects{ grid-template-columns:1fr 1fr; }
+  }
+
+  @media (max-width: 720px){
+    nav{ padding:14px 20px; flex-wrap:wrap; gap:14px; }
+    .nav-links{ order:3; width:100%; justify-content:space-between; }
+    #aboutMe{ padding:56px 20px 80px; }
+    #projects{ padding:20px 20px 90px; }
+    .projects{ grid-template-columns:1fr; }
+    .footer-content{ padding:0 0 32px; }
+    .site-footer{ padding:44px 20px 0; }
+  }
+</style>
 </head>
 <body>
-  <nav style="display: flex; ">
 
-  <div class="section1" style="display: flex; padding: 0px 0px 0px 100px;flex-direction: row; align-items: center; gap: 15px; width: 25%;">
-    <img src="DMX_Logo_Transparent.png" style="height: 48px; width: 48px; border-radius: 0px;">
-    <h1>DYNAMEXED</h1>
-  </div>
-
-  <div class="section2">
-    <button onclick="document.getElementById('aboutMe').scrollIntoView({behavior: 'smooth'});">
-      About Me
-    </button> 
-    <button onclick="document.getElementById('projects').scrollIntoView({behavior: 'smooth'});">
-      Projects
-    </button> 
-    <button onclick="document.getElementById('footer').scrollIntoView({behavior: 'smooth'});">
-      Contact
-    </button> 
-  </div>
-
-  <div class="section3" style="width: 25%; margin-left: auto;">
-    <div class="social-links">
-      <a href="#" aria-label="Email"><svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="red" class="bi bi-envelope-at-fill" viewBox="0 0 16 16">
-      <path d="M2 2A2 2 0 0 0 .05 3.555L8 8.414l7.95-4.859A2 2 0 0 0 14 2zm-2 9.8V4.698l5.803 3.546zm6.761-2.97-6.57 4.026A2 2 0 0 0 2 14h6.256A4.5 4.5 0 0 1 8 12.5a4.49 4.49 0 0 1 1.606-3.446l-.367-.225L8 9.586zM16 9.671V4.697l-5.803 3.546.338.208A4.5 4.5 0 0 1 12.5 8c1.414 0 2.675.652 3.5 1.671"/>
-      <path d="M15.834 12.244c0 1.168-.577 2.025-1.587 2.025-.503 0-1.002-.228-1.12-.648h-.043c-.118.416-.543.643-1.015.643-.77 0-1.259-.542-1.259-1.434v-.529c0-.844.481-1.4 1.26-1.4.585 0 .87.333.953.63h.03v-.568h.905v2.19c0 .272.18.42.411.42.315 0 .639-.415.639-1.39v-.118c0-1.277-.95-2.326-2.484-2.326h-.04c-1.582 0-2.64 1.067-2.64 2.724v.157c0 1.867 1.237 2.654 2.57 2.654h.045c.507 0 .935-.07 1.18-.18v.731c-.219.1-.643.175-1.237.175h-.044C10.438 16 9 14.82 9 12.646v-.214C9 10.36 10.421 9 12.485 9h.035c2.12 0 3.314 1.43 3.314 3.034zm-4.04.21v.227c0 .586.227.8.581.8.31 0 .564-.17.564-.743v-.367c0-.516-.275-.708-.572-.708-.346 0-.573.245-.573.791"/>
-      </svg></a>
-
-      <a href="https://www.youtube.com/@Dynamexed" aria-label="Youtube"><svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="red" class="bi bi-youtube" viewBox="0 0 16 16">
-      <path d="M8.051 1.999h.089c.822.003 4.987.033 6.11.335a2.01 2.01 0 0 1 1.415 1.42c.101.38.172.883.22 1.402l.01.104.022.26.008.104c.065.914.073 1.77.074 1.957v.075c-.001.194-.01 1.108-.082 2.06l-.008.105-.009.104c-.05.572-.124 1.14-.235 1.558a2.01 2.01 0 0 1-1.415 1.42c-1.16.312-5.569.334-6.18.335h-.142c-.309 0-1.587-.006-2.927-.052l-.17-.006-.087-.004-.171-.007-.171-.007c-1.11-.049-2.167-.128-2.654-.26a2.01 2.01 0 0 1-1.415-1.419c-.111-.417-.185-.986-.235-1.558L.09 9.82l-.008-.104A31 31 0 0 1 0 7.68v-.123c.002-.215.01-.958.064-1.778l.007-.103.003-.052.008-.104.022-.26.01-.104c.048-.519.119-1.023.22-1.402a2.01 2.01 0 0 1 1.415-1.42c.487-.13 1.544-.21 2.654-.26l.17-.007.172-.006.086-.003.171-.007A100 100 0 0 1 7.858 2zM6.4 5.209v4.818l4.157-2.408z"/>
-      </svg></a>
-
-      <a href="#" aria-label="Discord"><svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="red" class="bi bi-discord" viewBox="0 0 16 16">
-      <path d="M13.545 2.907a13.2 13.2 0 0 0-3.257-1.011.05.05 0 0 0-.052.025c-.141.25-.297.577-.406.833a12.2 12.2 0 0 0-3.658 0 8 8 0 0 0-.412-.833.05.05 0 0 0-.052-.025c-1.125.194-2.22.534-3.257 1.011a.04.04 0 0 0-.021.018C.356 6.024-.213 9.047.066 12.032q.003.022.021.037a13.3 13.3 0 0 0 3.995 2.02.05.05 0 0 0 .056-.019q.463-.63.818-1.329a.05.05 0 0 0-.01-.059l-.018-.011a9 9 0 0 1-1.248-.595.05.05 0 0 1-.02-.066l.015-.019q.127-.095.248-.195a.05.05 0 0 1 .051-.007c2.619 1.196 5.454 1.196 8.041 0a.05.05 0 0 1 .053.007q.121.1.248.195a.05.05 0 0 1-.004.085 8 8 0 0 1-1.249.594.05.05 0 0 0-.03.03.05.05 0 0 0 .003.041c.24.465.515.909.817 1.329a.05.05 0 0 0 .056.019 13.2 13.2 0 0 0 4.001-2.02.05.05 0 0 0 .021-.037c.334-3.451-.559-6.449-2.366-9.106a.03.03 0 0 0-.02-.019m-8.198 7.307c-.789 0-1.438-.724-1.438-1.612s.637-1.613 1.438-1.613c.807 0 1.45.73 1.438 1.613 0 .888-.637 1.612-1.438 1.612m5.316 0c-.788 0-1.438-.724-1.438-1.612s.637-1.613 1.438-1.613c.807 0 1.451.73 1.438 1.613 0 .888-.631 1.612-1.438 1.612"/>
-      </svg></a>
-      </div>
+<nav>
+  <div class="brand">
+    <img src="DMX_Logo_Transparent.png" alt="Dynamexed logo">
+    <div>
+      <h1>DYNAMEXED</h1>
+      <span class="hud-tag">3D Asset Artist</span>
     </div>
-  </nav>
+  </div>
 
-  <header>
+  <div class="nav-links">
+    <button onclick="document.getElementById('aboutMe').scrollIntoView({behavior:'smooth'});">About</button>
+    <button onclick="document.getElementById('projects').scrollIntoView({behavior:'smooth'});">Projects</button>
+    <button onclick="document.getElementById('footer').scrollIntoView({behavior:'smooth'});">Contact</button>
+  </div>
 
-    <section id="aboutMe">
-        <div class="container">
-          <h1 class="background-text">DYNAMEXED</h1>
-          <div class="text">
-            <h2 class="foreground-text">About ME</h2>
-            <p class="foreground-p"><strong>Dynamexed</strong> is a Junior in Highschool who believes in the <strong>quintessence</strong> of humanity and a sea of <strong>creativity</strong> trapped within our minds, waiting for the pencil to hit the paper <strong>Since Nov 17, 2010</strong>.</p>
-          </div>
+  <div class="nav-social">
+    <a href="#" aria-label="Email">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M2 2A2 2 0 0 0 .05 3.555L8 8.414l7.95-4.859A2 2 0 0 0 14 2zm-2 9.8V4.698l5.803 3.546zm6.761-2.97-6.57 4.026A2 2 0 0 0 2 14h6.256A4.5 4.5 0 0 1 8 12.5a4.49 4.49 0 0 1 1.606-3.446l-.367-.225L8 9.586zM16 9.671V4.697l-5.803 3.546.338.208A4.5 4.5 0 0 1 12.5 8c1.414 0 2.675.652 3.5 1.671"/><path d="M15.834 12.244c0 1.168-.577 2.025-1.587 2.025-.503 0-1.002-.228-1.12-.648h-.043c-.118.416-.543.643-1.015.643-.77 0-1.259-.542-1.259-1.434v-.529c0-.844.481-1.4 1.26-1.4.585 0 .87.333.953.63h.03v-.568h.905v2.19c0 .272.18.42.411.42.315 0 .639-.415.639-1.39v-.118c0-1.277-.95-2.326-2.484-2.326h-.04c-1.582 0-2.64 1.067-2.64 2.724v.157c0 1.867 1.237 2.654 2.57 2.654h.045c.507 0 .935-.07 1.18-.18v.731c-.219.1-.643.175-1.237.175h-.044C10.438 16 9 14.82 9 12.646v-.214C9 10.36 10.421 9 12.485 9h.035c2.12 0 3.314 1.43 3.314 3.034zm-4.04.21v.227c0 .586.227.8.581.8.31 0 .564-.17.564-.743v-.367c0-.516-.275-.708-.572-.708-.346 0-.573.245-.573.791"/></svg>
+    </a>
+    <a href="https://www.youtube.com/@Dynamexed" aria-label="Youtube">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M8.051 1.999h.089c.822.003 4.987.033 6.11.335a2.01 2.01 0 0 1 1.415 1.42c.101.38.172.883.22 1.402l.01.104.022.26.008.104c.065.914.073 1.77.074 1.957v.075c-.001.194-.01 1.108-.082 2.06l-.008.105-.009.104c-.05.572-.124 1.14-.235 1.558a2.01 2.01 0 0 1-1.415 1.42c-1.16.312-5.569.334-6.18.335h-.142c-.309 0-1.587-.006-2.927-.052l-.17-.006-.087-.004-.171-.007-.171-.007c-1.11-.049-2.167-.128-2.654-.26a2.01 2.01 0 0 1-1.415-1.419c-.111-.417-.185-.986-.235-1.558L.09 9.82l-.008-.104A31 31 0 0 1 0 7.68v-.123c.002-.215.01-.958.064-1.778l.007-.103.003-.052.008-.104.022-.26.01-.104c.048-.519.119-1.023.22-1.402a2.01 2.01 0 0 1 1.415-1.42c.487-.13 1.544-.21 2.654-.26l.17-.007.172-.006.086-.003.171-.007A100 100 0 0 1 7.858 2zM6.4 5.209v4.818l4.157-2.408z"/></svg>
+    </a>
+    <a href="#" aria-label="Discord">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M13.545 2.907a13.2 13.2 0 0 0-3.257-1.011.05.05 0 0 0-.052.025c-.141.25-.297.577-.406.833a12.2 12.2 0 0 0-3.658 0 8 8 0 0 0-.412-.833.05.05 0 0 0-.052-.025c-1.125.194-2.22.534-3.257 1.011a.04.04 0 0 0-.021.018C.356 6.024-.213 9.047.066 12.032q.003.022.021.037a13.3 13.3 0 0 0 3.995 2.02.05.05 0 0 0 .056-.019q.463-.63.818-1.329a.05.05 0 0 0-.01-.059l-.018-.011a9 9 0 0 1-1.248-.595.05.05 0 0 1-.02-.066l.015-.019q.127-.095.248-.195a.05.05 0 0 1 .051-.007c2.619 1.196 5.454 1.196 8.041 0a.05.05 0 0 1 .053.007q.121.1.248.195a.05.05 0 0 1-.004.085 8 8 0 0 1-1.249.594.05.05 0 0 0-.03.03.05.05 0 0 0 .003.041c.24.465.515.909.817 1.329a.05.05 0 0 0 .056.019 13.2 13.2 0 0 0 4.001-2.02.05.05 0 0 0 .021-.037c.334-3.451-.559-6.449-2.366-9.106a.03.03 0 0 0-.02-.019m-8.198 7.307c-.789 0-1.438-.724-1.438-1.612s.637-1.613 1.438-1.613c.807 0 1.45.73 1.438 1.613 0 .888-.637 1.612-1.438 1.612m5.316 0c-.788 0-1.438-.724-1.438-1.612s.637-1.613 1.438-1.613c.807 0 1.451.73 1.438 1.613 0 .888-.631 1.612-1.438 1.612"/></svg>
+    </a>
+  </div>
+</nav>
+
+<header>
+
+  <section id="aboutMe">
+    <div class="hero-grid">
+
+      <div class="hero-copy">
+        <span class="hud-tag">Scene: Portfolio.blend — Selected Object: Dyna</span>
+        <h2>Building game‑ready<br><span>assets</span> by hand.</h2>
+        <p>
+          <strong>Dynamexed</strong> is a Junior in high school who believes in the <strong>quintessence</strong> of humanity and a sea of <strong>creativity</strong> trapped within our minds, waiting for the pencil to hit the paper — modeling, texturing, and rigging since <strong>Nov 17, 2010</strong>.
+        </p>
+        <div class="hero-cta">
+          <button class="btn btn-primary" onclick="document.getElementById('projects').scrollIntoView({behavior:'smooth'});">View Projects</button>
+          <button class="btn btn-ghost" onclick="document.getElementById('footer').scrollIntoView({behavior:'smooth'});">Get In Touch</button>
         </div>
-    </section>
+      </div>
 
-    <section id="projects">
-      <h1>Projects</h1>
-      <div class="projects">
+      <div class="viewport">
+        <div class="viewport-grid"></div>
+        <img src="dyna.jpg" alt="Portrait of Dynamexed">
 
-        <div class="project">
-          <img src="KIngHover.png">
+        <span class="vp-corner tl"></span>
+        <span class="vp-corner tr"></span>
+        <span class="vp-corner bl"></span>
+        <span class="vp-corner br"></span>
+
+        <div class="vp-readout top">
+          <span>OBJ: dyna.psd</span>
+          <span>1x</span>
+        </div>
+
+        <svg class="gizmo" viewBox="0 0 40 40" fill="none">
+          <line x1="20" y1="20" x2="34" y2="20" stroke="#e2172b" stroke-width="2"/>
+          <circle cx="34" cy="20" r="4" fill="#e2172b"/>
+          <line x1="20" y1="20" x2="20" y2="6" stroke="#7a1019" stroke-width="2"/>
+          <circle cx="20" cy="6" r="4" fill="#7a1019"/>
+          <line x1="20" y1="20" x2="10" y2="30" stroke="#f2f2f2" stroke-width="2"/>
+          <circle cx="10" cy="30" r="4" fill="#f2f2f2"/>
+        </svg>
+
+        <div class="vp-readout status">
+          <span class="dot"></span>
+          <span>Open for commissions</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <section id="projects">
+    <div class="section-head">
+      <h2>Asset Library</h2>
+      <p>A working set of props and characters, modeled and textured to drop straight into a game.</p>
+    </div>
+
+    <div class="projects">
+
+      <div class="project">
+        <div class="project-media">
+          <span class="project-tag">Vehicle</span>
+          <img src="KIngHover.png" alt="King Hover Board asset">
+        </div>
+        <div class="project-body">
           <h1>King Hover Board</h1>
-          <p>This hover board is ready to be dropped into any game with the perfect outline</p>
+          <p>Ready to drop into any game with a clean, readable outline.</p>
         </div>
+      </div>
 
-        <div class="project">
-          <img src="AngyBones.png">
+      <div class="project">
+        <div class="project-media">
+          <span class="project-tag">Character</span>
+          <img src="AngyBones.png" alt="Fierce Skeleton character asset">
+        </div>
+        <div class="project-body">
           <h1>Fierce Skeleton</h1>
-          <p>This skeleton is mean and fierce and is ready for any game</p>
+          <p>Mean, fierce, and rigged for any encounter.</p>
         </div>
+      </div>
 
-        <div class="project">
-          <img src="MonsterChair.png">
+      <div class="project">
+        <div class="project-media">
+          <span class="project-tag">Prop</span>
+          <img src="MonsterChair.png" alt="Monster Chair asset">
+        </div>
+        <div class="project-body">
           <h1>Monster Chair</h1>
-          <p>This chair has an outline that can be seen in any game</p>
-        </div>
-
-      </div>
-
-    </section>
-
-  </header>
-
-  <footer id="footer" class="site-footer">
-    <div class="footer-content">
-      <!-- Column 1: Brand & About -->
-      <div class="footer-column">
-        <h3>@DYAMEXED</h3>
-        <p>Innovating the future of digital experiences.</p>
-        <div class="social-links">
-          <a href="#" aria-label="Email"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="red" class="bi bi-envelope-at-fill" viewBox="0 0 16 16">
-  <path d="M2 2A2 2 0 0 0 .05 3.555L8 8.414l7.95-4.859A2 2 0 0 0 14 2zm-2 9.8V4.698l5.803 3.546zm6.761-2.97-6.57 4.026A2 2 0 0 0 2 14h6.256A4.5 4.5 0 0 1 8 12.5a4.49 4.49 0 0 1 1.606-3.446l-.367-.225L8 9.586zM16 9.671V4.697l-5.803 3.546.338.208A4.5 4.5 0 0 1 12.5 8c1.414 0 2.675.652 3.5 1.671"/>
-  <path d="M15.834 12.244c0 1.168-.577 2.025-1.587 2.025-.503 0-1.002-.228-1.12-.648h-.043c-.118.416-.543.643-1.015.643-.77 0-1.259-.542-1.259-1.434v-.529c0-.844.481-1.4 1.26-1.4.585 0 .87.333.953.63h.03v-.568h.905v2.19c0 .272.18.42.411.42.315 0 .639-.415.639-1.39v-.118c0-1.277-.95-2.326-2.484-2.326h-.04c-1.582 0-2.64 1.067-2.64 2.724v.157c0 1.867 1.237 2.654 2.57 2.654h.045c.507 0 .935-.07 1.18-.18v.731c-.219.1-.643.175-1.237.175h-.044C10.438 16 9 14.82 9 12.646v-.214C9 10.36 10.421 9 12.485 9h.035c2.12 0 3.314 1.43 3.314 3.034zm-4.04.21v.227c0 .586.227.8.581.8.31 0 .564-.17.564-.743v-.367c0-.516-.275-.708-.572-.708-.346 0-.573.245-.573.791"/>
-</svg></a>
-          <a href="https://www.youtube.com/@Dynamexed" aria-label="Youtube"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="red" class="bi bi-youtube" viewBox="0 0 16 16">
-  <path d="M8.051 1.999h.089c.822.003 4.987.033 6.11.335a2.01 2.01 0 0 1 1.415 1.42c.101.38.172.883.22 1.402l.01.104.022.26.008.104c.065.914.073 1.77.074 1.957v.075c-.001.194-.01 1.108-.082 2.06l-.008.105-.009.104c-.05.572-.124 1.14-.235 1.558a2.01 2.01 0 0 1-1.415 1.42c-1.16.312-5.569.334-6.18.335h-.142c-.309 0-1.587-.006-2.927-.052l-.17-.006-.087-.004-.171-.007-.171-.007c-1.11-.049-2.167-.128-2.654-.26a2.01 2.01 0 0 1-1.415-1.419c-.111-.417-.185-.986-.235-1.558L.09 9.82l-.008-.104A31 31 0 0 1 0 7.68v-.123c.002-.215.01-.958.064-1.778l.007-.103.003-.052.008-.104.022-.26.01-.104c.048-.519.119-1.023.22-1.402a2.01 2.01 0 0 1 1.415-1.42c.487-.13 1.544-.21 2.654-.26l.17-.007.172-.006.086-.003.171-.007A100 100 0 0 1 7.858 2zM6.4 5.209v4.818l4.157-2.408z"/>
-</svg></a>
-          <a href="#" aria-label="Discord"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="red" class="bi bi-discord" viewBox="0 0 16 16">
-  <path d="M13.545 2.907a13.2 13.2 0 0 0-3.257-1.011.05.05 0 0 0-.052.025c-.141.25-.297.577-.406.833a12.2 12.2 0 0 0-3.658 0 8 8 0 0 0-.412-.833.05.05 0 0 0-.052-.025c-1.125.194-2.22.534-3.257 1.011a.04.04 0 0 0-.021.018C.356 6.024-.213 9.047.066 12.032q.003.022.021.037a13.3 13.3 0 0 0 3.995 2.02.05.05 0 0 0 .056-.019q.463-.63.818-1.329a.05.05 0 0 0-.01-.059l-.018-.011a9 9 0 0 1-1.248-.595.05.05 0 0 1-.02-.066l.015-.019q.127-.095.248-.195a.05.05 0 0 1 .051-.007c2.619 1.196 5.454 1.196 8.041 0a.05.05 0 0 1 .053.007q.121.1.248.195a.05.05 0 0 1-.004.085 8 8 0 0 1-1.249.594.05.05 0 0 0-.03.03.05.05 0 0 0 .003.041c.24.465.515.909.817 1.329a.05.05 0 0 0 .056.019 13.2 13.2 0 0 0 4.001-2.02.05.05 0 0 0 .021-.037c.334-3.451-.559-6.449-2.366-9.106a.03.03 0 0 0-.02-.019m-8.198 7.307c-.789 0-1.438-.724-1.438-1.612s.637-1.613 1.438-1.613c.807 0 1.45.73 1.438 1.613 0 .888-.637 1.612-1.438 1.612m5.316 0c-.788 0-1.438-.724-1.438-1.612s.637-1.613 1.438-1.613c.807 0 1.451.73 1.438 1.613 0 .888-.631 1.612-1.438 1.612"/>
-</svg></a>
+          <p>An outline bold enough to read clearly in any scene.</p>
         </div>
       </div>
 
-    <!-- Bottom Bar: Copyright & Legal -->
-    <div class="footer-bottom">
-      <p>&copy; @DYAMEXED 2026. All rights reserved.</p>
-      <div class="legal-links">
-        <a href="/privacy">Privacy</a>
-        <a href="/terms">Terms</a>
-        <a href="/cookies">Cookies</a>
+    </div>
+  </section>
+
+</header>
+
+<footer id="footer" class="site-footer">
+  <div class="footer-content">
+    <div class="footer-column">
+      <h3>@DYNAMEXED</h3>
+      <p>Innovating the future of digital experiences.</p>
+      <div class="social-links">
+        <a href="#" aria-label="Email">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M2 2A2 2 0 0 0 .05 3.555L8 8.414l7.95-4.859A2 2 0 0 0 14 2zm-2 9.8V4.698l5.803 3.546zm6.761-2.97-6.57 4.026A2 2 0 0 0 2 14h6.256A4.5 4.5 0 0 1 8 12.5a4.49 4.49 0 0 1 1.606-3.446l-.367-.225L8 9.586zM16 9.671V4.697l-5.803 3.546.338.208A4.5 4.5 0 0 1 12.5 8c1.414 0 2.675.652 3.5 1.671"/><path d="M15.834 12.244c0 1.168-.577 2.025-1.587 2.025-.503 0-1.002-.228-1.12-.648h-.043c-.118.416-.543.643-1.015.643-.77 0-1.259-.542-1.259-1.434v-.529c0-.844.481-1.4 1.26-1.4.585 0 .87.333.953.63h.03v-.568h.905v2.19c0 .272.18.42.411.42.315 0 .639-.415.639-1.39v-.118c0-1.277-.95-2.326-2.484-2.326h-.04c-1.582 0-2.64 1.067-2.64 2.724v.157c0 1.867 1.237 2.654 2.57 2.654h.045c.507 0 .935-.07 1.18-.18v.731c-.219.1-.643.175-1.237.175h-.044C10.438 16 9 14.82 9 12.646v-.214C9 10.36 10.421 9 12.485 9h.035c2.12 0 3.314 1.43 3.314 3.034zm-4.04.21v.227c0 .586.227.8.581.8.31 0 .564-.17.564-.743v-.367c0-.516-.275-.708-.572-.708-.346 0-.573.245-.573.791"/></svg>
+        </a>
+        <a href="https://www.youtube.com/@Dynamexed" aria-label="Youtube">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M8.051 1.999h.089c.822.003 4.987.033 6.11.335a2.01 2.01 0 0 1 1.415 1.42c.101.38.172.883.22 1.402l.01.104.022.26.008.104c.065.914.073 1.77.074 1.957v.075c-.001.194-.01 1.108-.082 2.06l-.008.105-.009.104c-.05.572-.124 1.14-.235 1.558a2.01 2.01 0 0 1-1.415 1.42c-1.16.312-5.569.334-6.18.335h-.142c-.309 0-1.587-.006-2.927-.052l-.17-.006-.087-.004-.171-.007-.171-.007c-1.11-.049-2.167-.128-2.654-.26a2.01 2.01 0 0 1-1.415-1.419c-.111-.417-.185-.986-.235-1.558L.09 9.82l-.008-.104A31 31 0 0 1 0 7.68v-.123c.002-.215.01-.958.064-1.778l.007-.103.003-.052.008-.104.022-.26.01-.104c.048-.519.119-1.023.22-1.402a2.01 2.01 0 0 1 1.415-1.42c.487-.13 1.544-.21 2.654-.26l.17-.007.172-.006.086-.003.171-.007A100 100 0 0 1 7.858 2zM6.4 5.209v4.818l4.157-2.408z"/></svg>
+        </a>
+        <a href="#" aria-label="Discord">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M13.545 2.907a13.2 13.2 0 0 0-3.257-1.011.05.05 0 0 0-.052.025c-.141.25-.297.577-.406.833a12.2 12.2 0 0 0-3.658 0 8 8 0 0 0-.412-.833.05.05 0 0 0-.052-.025c-1.125.194-2.22.534-3.257 1.011a.04.04 0 0 0-.021.018C.356 6.024-.213 9.047.066 12.032q.003.022.021.037a13.3 13.3 0 0 0 3.995 2.02.05.05 0 0 0 .056-.019q.463-.63.818-1.329a.05.05 0 0 0-.01-.059l-.018-.011a9 9 0 0 1-1.248-.595.05.05 0 0 1-.02-.066l.015-.019q.127-.095.248-.195a.05.05 0 0 1 .051-.007c2.619 1.196 5.454 1.196 8.041 0a.05.05 0 0 1 .053.007q.121.1.248.195a.05.05 0 0 1-.004.085 8 8 0 0 1-1.249.594.05.05 0 0 0-.03.03.05.05 0 0 0 .003.041c.24.465.515.909.817 1.329a.05.05 0 0 0 .056.019 13.2 13.2 0 0 0 4.001-2.02.05.05 0 0 0 .021-.037c.334-3.451-.559-6.449-2.366-9.106a.03.03 0 0 0-.02-.019m-8.198 7.307c-.789 0-1.438-.724-1.438-1.612s.637-1.613 1.438-1.613c.807 0 1.45.73 1.438 1.613 0 .888-.637 1.612-1.438 1.612m5.316 0c-.788 0-1.438-.724-1.438-1.612s.637-1.613 1.438-1.613c.807 0 1.451.73 1.438 1.613 0 .888-.631 1.612-1.438 1.612"/></svg>
+        </a>
       </div>
     </div>
-  </footer>   
+  </div>
 
+  <div class="footer-bottom">
+    <p>&copy; @DYNAMEXED 2026. All rights reserved.</p>
+    <div class="legal-links">
+      <a href="/privacy">Privacy</a>
+      <a href="/terms">Terms</a>
+      <a href="/cookies">Cookies</a>
+    </div>
+  </div>
+</footer>
 
-  <script src="script.js"></script>
+<script src="script.js"></script>
 </body>
 </html>
