@@ -318,6 +318,8 @@
     position:relative;
   }
   .project:hover{ border-color:var(--accent); transform:translateY(-4px); }
+  .project{ cursor:pointer; }
+  .project:focus-visible{ outline:2px solid var(--accent); outline-offset:4px; }
 
   .project-media{
     position:relative;
@@ -357,6 +359,118 @@
   .project-body p{
     color:var(--text-dim);
     font-size:0.92rem;
+  }
+
+  /* ============ PROJECT DETAIL MODAL ============ */
+  .project-modal{
+    position:fixed;
+    inset:0;
+    z-index:10050;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity 220ms ease;
+  }
+  .project-modal.is-open{
+    opacity:1;
+    pointer-events:auto;
+  }
+  .project-modal-backdrop{
+    position:absolute;
+    inset:0;
+    background:rgba(5,5,5,0.82);
+    backdrop-filter:blur(6px);
+    -webkit-backdrop-filter:blur(6px);
+  }
+  .project-modal-panel{
+    position:relative;
+    width:100%;
+    max-width:520px;
+    max-height:88vh;
+    overflow-y:auto;
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:16px;
+    overflow-x:hidden;
+    transform:translateY(16px) scale(0.98);
+    transition:transform 260ms cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow:0 30px 80px -20px rgba(0,0,0,0.6);
+  }
+  .project-modal.is-open .project-modal-panel{
+    transform:translateY(0) scale(1);
+  }
+  .project-modal-close{
+    position:absolute;
+    top:14px; right:14px;
+    width:34px; height:34px;
+    border-radius:8px;
+    border:1px solid var(--line);
+    background:rgba(10,10,10,0.55);
+    color:var(--text);
+    font-size:1.3rem;
+    line-height:1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    z-index:2;
+    transition:border-color 180ms ease, color 180ms ease;
+  }
+  .project-modal-close:hover{ border-color:var(--accent); color:var(--accent); }
+  .project-modal-close:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+
+  .project-modal-media{
+    position:relative;
+    aspect-ratio:16/10;
+    background:var(--surface-2);
+    overflow:hidden;
+  }
+  .project-modal-media img{
+    width:100%; height:100%;
+    object-fit:cover;
+  }
+
+  .project-modal-body{ padding:26px 26px 30px; }
+  .project-modal-body h3{
+    font-family:var(--display);
+    font-weight:700;
+    font-size:1.6rem;
+    text-transform:uppercase;
+    letter-spacing:0.02em;
+    margin-bottom:10px;
+  }
+  .project-modal-body > p{
+    color:var(--text-dim);
+    font-size:0.98rem;
+    margin-bottom:22px;
+  }
+
+  .project-modal-meta{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:18px;
+    border-top:1px solid var(--line);
+    padding-top:20px;
+  }
+  .project-modal-meta dt{
+    font-family:var(--mono);
+    font-size:0.66rem;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    color:var(--accent);
+    margin-bottom:6px;
+  }
+  .project-modal-meta dd{
+    font-size:0.92rem;
+    color:var(--text);
+    line-height:1.5;
+  }
+
+  @media (max-width: 520px){
+    .project-modal-meta{ grid-template-columns:1fr; }
   }
 
   /* ============ FOOTER ============ */
@@ -436,8 +550,9 @@
     border-radius:50%;
     pointer-events:none;
     z-index:10000;
-    transform:translate(-50%, -50%) scale(1);
-    transition:transform 200ms ease, background 220ms ease, opacity 200ms ease;
+    translate:-50% -50%;
+    scale:1;
+    transition:scale 110ms ease, background 220ms ease, opacity 200ms ease, border-color 150ms ease;
     opacity:0;
   }
 
@@ -447,6 +562,15 @@
 
   .cursor-ring.is-active{
     background:rgba(195,26,40,0.14);
+    scale:0.55;
+  }
+
+  /* Over a light patch of an image, invert to black so it stays visible. */
+  .cursor-ring.is-light{
+    border-color:#0a0a0a;
+  }
+  .cursor-ring.is-light.is-active{
+    background:rgba(10,10,10,0.16);
   }
 
   @media (max-width: 720px){
@@ -549,7 +673,7 @@
 
     <div class="projects">
 
-      <div class="project">
+      <div class="project" role="button" tabindex="0" data-made-for="Personal portfolio piece" data-game="General-purpose vehicle asset — built to slot into any Roblox game needing a hoverboard.">
         <div class="project-media">
           <span class="project-tag">Vehicle</span>
           <img src="KIngHover.png" alt="King Hover Board asset">
@@ -560,7 +684,7 @@
         </div>
       </div>
 
-      <div class="project">
+      <div class="project" role="button" tabindex="0" data-made-for="Commission — add client / project name here" data-game="Enemy or boss character — add the specific game/purpose here.">
         <div class="project-media">
           <span class="project-tag">Character</span>
           <img src="AngyBones.png" alt="Fierce Skeleton character asset">
@@ -571,7 +695,7 @@
         </div>
       </div>
 
-      <div class="project">
+      <div class="project" role="button" tabindex="0" data-made-for="Personal portfolio piece" data-game="Environment prop — add the specific game/purpose here.">
         <div class="project-media">
           <span class="project-tag">Prop</span>
           <img src="MonsterChair.png" alt="Monster Chair asset">
@@ -616,28 +740,52 @@
   </div>
 </footer>
 
-<script>
-  // Custom red circle cursor — follows the mouse, zooms in over links and buttons.
-  // Respects reduced-motion and disables itself on real touch input.
-  (function () {
-    var prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (prefersReducedMotion) return;
+<div class="project-modal" id="project-modal" aria-hidden="true">
+  <div class="project-modal-backdrop" data-close></div>
+  <div class="project-modal-panel" role="dialog" aria-modal="true" aria-labelledby="modal-title-text">
+    <button class="project-modal-close" type="button" aria-label="Close" data-close>&times;</button>
+    <div class="project-modal-media">
+      <img id="modal-img" src="" alt="">
+      <span class="project-tag" id="modal-tag"></span>
+    </div>
+    <div class="project-modal-body">
+      <h3 id="modal-title-text"></h3>
+      <p id="modal-desc"></p>
+      <dl class="project-modal-meta">
+        <div>
+          <dt>Made for</dt>
+          <dd id="modal-made-for"></dd>
+        </div>
+        <div>
+          <dt>Game / Purpose</dt>
+          <dd id="modal-game"></dd>
+        </div>
+      </dl>
+    </div>
+  </div>
+</div>
 
+<script>
+  // Custom red circle cursor — follows the mouse, zooms in over links and buttons,
+  // and inverts to black when it passes over a light patch of an image.
+  // Disables itself on real touch input.
+  (function () {
     var ring = document.querySelector('.cursor-ring');
     if (!ring) return;
 
     var mouseX = 0, mouseY = 0;
-    var ringX = 0, ringY = 0;
-    var hovering = false;
     var started = false;
+
+    function positionRing(x, y) {
+      ring.style.translate = 'calc(' + x + 'px - 50%) calc(' + y + 'px - 50%)';
+    }
 
     function onMouseMove(e) {
       mouseX = e.clientX;
       mouseY = e.clientY;
+      positionRing(mouseX, mouseY);
       if (!started) {
         started = true;
-        ringX = mouseX;
-        ringY = mouseY;
         document.documentElement.classList.add('has-custom-cursor');
       }
     }
@@ -652,25 +800,171 @@
     var hoverTargets = 'a, button, [role="button"]';
     document.addEventListener('mouseover', function (e) {
       if (e.target.closest && e.target.closest(hoverTargets)) {
-        hovering = true;
         ring.classList.add('is-active');
       }
     });
     document.addEventListener('mouseout', function (e) {
       if (e.target.closest && e.target.closest(hoverTargets)) {
-        hovering = false;
         ring.classList.remove('is-active');
       }
     });
 
+    // ---- Light/dark sampling: read the actual pixel under the cursor from each <img> ----
+    var samplers = [];
+
+    function buildSampler(img) {
+      try {
+        var w = img.naturalWidth, h = img.naturalHeight;
+        if (!w || !h) return;
+        var canvas = document.createElement('canvas');
+        canvas.width = w;
+        canvas.height = h;
+        var ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, w, h);
+        // Trigger a read now so a cross-origin/tainted canvas fails fast and is skipped.
+        ctx.getImageData(0, 0, 1, 1);
+        samplers.push({ img: img, canvas: canvas, ctx: ctx, w: w, h: h });
+      } catch (err) {
+        // Unreadable (e.g. tainted canvas) — just skip; cursor stays red over this image.
+      }
+    }
+
+    document.querySelectorAll('img').forEach(function (img) {
+      if (img.complete && img.naturalWidth) {
+        buildSampler(img);
+      } else {
+        img.addEventListener('load', function () { buildSampler(img); }, { once: true });
+      }
+    });
+
+    // Maps a point inside the element's box to natural image pixel coords,
+    // accounting for object-fit / object-position (so cover-cropped images sample correctly).
+    function mapToNaturalPixel(sampler, rect, px, py) {
+      var style = getComputedStyle(sampler.img);
+      var fit = style.objectFit || 'fill';
+      var posParts = (style.objectPosition || '50% 50%').split(' ');
+      var posXfrac = parseFloat(posParts[0]) / 100;
+      var posYfrac = parseFloat(posParts[1]) / 100;
+      if (isNaN(posXfrac)) posXfrac = 0.5;
+      if (isNaN(posYfrac)) posYfrac = 0.5;
+
+      var scale;
+      if (fit === 'cover') {
+        scale = Math.max(rect.width / sampler.w, rect.height / sampler.h);
+      } else if (fit === 'contain') {
+        scale = Math.min(rect.width / sampler.w, rect.height / sampler.h);
+      } else {
+        // 'fill' and other modes — approximate with direct proportional mapping.
+        return {
+          x: Math.min(sampler.w - 1, Math.floor((px / rect.width) * sampler.w)),
+          y: Math.min(sampler.h - 1, Math.floor((py / rect.height) * sampler.h))
+        };
+      }
+
+      var displayedW = sampler.w * scale;
+      var displayedH = sampler.h * scale;
+      var excessX = displayedW - rect.width;
+      var excessY = displayedH - rect.height;
+      var naturalX = (px + excessX * posXfrac) / scale;
+      var naturalY = (py + excessY * posYfrac) / scale;
+
+      return {
+        x: Math.max(0, Math.min(sampler.w - 1, Math.floor(naturalX))),
+        y: Math.max(0, Math.min(sampler.h - 1, Math.floor(naturalY)))
+      };
+    }
+
+    function luminanceUnderCursor(x, y) {
+      for (var i = 0; i < samplers.length; i++) {
+        var s = samplers[i];
+        var rect = s.img.getBoundingClientRect();
+        if (x < rect.left || x > rect.right || y < rect.top || y > rect.bottom) continue;
+
+        var px = mapToNaturalPixel(s, rect, x - rect.left, y - rect.top);
+        try {
+          var data = s.ctx.getImageData(px.x, px.y, 1, 1).data;
+          if (data[3] < 32) continue; // mostly transparent — see through to page bg, treat as dark
+          return (0.2126 * data[0] + 0.7152 * data[1] + 0.0722 * data[2]) / 255;
+        } catch (err) {
+          continue;
+        }
+      }
+      return null;
+    }
+
     function loop() {
-      ringX += (mouseX - ringX) * 0.25;
-      ringY += (mouseY - ringY) * 0.25;
-      var scale = hovering ? 1.8 : 1;
-      ring.style.transform = 'translate(' + ringX + 'px,' + ringY + 'px) translate(-50%,-50%) scale(' + scale + ')';
+      var lum = luminanceUnderCursor(mouseX, mouseY);
+      if (lum !== null && lum > 0.6) {
+        ring.classList.add('is-light');
+      } else {
+        ring.classList.remove('is-light');
+      }
       requestAnimationFrame(loop);
     }
     loop();
+  })();
+</script>
+<script>
+  // Project detail modal — opens on card click/Enter, shows name, description,
+  // who it was made for, and its game/purpose.
+  (function () {
+    var modal = document.getElementById('project-modal');
+    if (!modal) return;
+
+    var imgEl = document.getElementById('modal-img');
+    var tagEl = document.getElementById('modal-tag');
+    var titleEl = document.getElementById('modal-title-text');
+    var descEl = document.getElementById('modal-desc');
+    var madeForEl = document.getElementById('modal-made-for');
+    var gameEl = document.getElementById('modal-game');
+    var closeBtn = modal.querySelector('.project-modal-close');
+    var lastFocused = null;
+
+    function openFromCard(card) {
+      var cardImg = card.querySelector('img');
+      var cardTag = card.querySelector('.project-tag');
+      var cardTitle = card.querySelector('h1');
+      var cardDesc = card.querySelector('p');
+
+      imgEl.src = cardImg ? cardImg.src : '';
+      imgEl.alt = cardImg ? cardImg.alt : '';
+      tagEl.textContent = cardTag ? cardTag.textContent : '';
+      titleEl.textContent = cardTitle ? cardTitle.textContent : '';
+      descEl.textContent = cardDesc ? cardDesc.textContent : '';
+      madeForEl.textContent = card.dataset.madeFor || '—';
+      gameEl.textContent = card.dataset.game || '—';
+
+      lastFocused = document.activeElement;
+      modal.classList.add('is-open');
+      modal.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+      if (closeBtn) closeBtn.focus();
+    }
+
+    function closeModal() {
+      modal.classList.remove('is-open');
+      modal.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+      if (lastFocused && typeof lastFocused.focus === 'function') lastFocused.focus();
+    }
+
+    document.querySelectorAll('.project').forEach(function (card) {
+      card.addEventListener('click', function () { openFromCard(card); });
+      card.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          openFromCard(card);
+        }
+      });
+    });
+
+    modal.querySelectorAll('[data-close]').forEach(function (el) {
+      el.addEventListener('click', closeModal);
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && modal.classList.contains('is-open')) closeModal();
+    });
   })();
 </script>
 </body>
