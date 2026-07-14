@@ -30,6 +30,30 @@
 
   html{ scroll-behavior:smooth; }
 
+  /* ============ CUSTOM SCROLLBAR ============ */
+  html{
+    scrollbar-width:thin;
+    scrollbar-color:var(--accent-dim) var(--bg);
+  }
+  ::-webkit-scrollbar{
+    width:11px;
+    height:11px;
+  }
+  ::-webkit-scrollbar-track{
+    background:var(--bg);
+  }
+  ::-webkit-scrollbar-thumb{
+    background:var(--accent-dim);
+    border-radius:8px;
+    border:2.5px solid var(--bg);
+  }
+  ::-webkit-scrollbar-thumb:hover{
+    background:var(--accent);
+  }
+  ::-webkit-scrollbar-corner{
+    background:var(--bg);
+  }
+
   body{
     background:var(--bg);
     color:var(--text);
@@ -433,6 +457,16 @@
     object-fit:cover;
   }
 
+  .modal-viewport-slot{
+    position:absolute;
+    inset:0;
+  }
+  .modal-viewport-slot canvas{
+    display:block;
+    width:100%;
+    height:100%;
+  }
+
   .project-modal-body{ padding:26px 26px 30px; }
   .project-modal-body h3{
     font-family:var(--display);
@@ -545,15 +579,19 @@
   .cursor-ring{
     position:fixed;
     top:0; left:0;
-    width:28px; height:28px;
-    border:1.5px solid var(--accent);
+    width:30px; height:30px;
     border-radius:50%;
     pointer-events:none;
     z-index:10000;
     translate:-50% -50%;
     scale:1;
-    transition:scale 110ms ease, background 220ms ease, opacity 200ms ease, border-color 150ms ease;
+    overflow:visible;
+    transition:scale 110ms ease, background 220ms ease, opacity 200ms ease;
     opacity:0;
+  }
+
+  .cursor-ring path{
+    transition:stroke 150ms ease;
   }
 
   html.has-custom-cursor .cursor-ring{
@@ -563,14 +601,6 @@
   .cursor-ring.is-active{
     background:rgba(195,26,40,0.14);
     scale:0.55;
-  }
-
-  /* Over a light patch of an image, invert to black so it stays visible. */
-  .cursor-ring.is-light{
-    border-color:#0a0a0a;
-  }
-  .cursor-ring.is-light.is-active{
-    background:rgba(10,10,10,0.16);
   }
 
   @media (max-width: 720px){
@@ -583,10 +613,18 @@
     .site-footer{ padding:44px 20px 0; }
   }
 </style>
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+  }
+}
+</script>
 </head>
 <body>
 
-<div class="cursor-ring" aria-hidden="true"></div>
+<svg class="cursor-ring" aria-hidden="true"></svg>
 
 <nav>
   <div class="brand">
@@ -673,8 +711,7 @@
 
     <div class="projects">
 
-      <div class="project" role="button" tabindex="0" data-made-for="Personal portfolio piece" data-game="General-purpose vehicle asset — built to slot into any Roblox game needing a hoverboard.">
-        <div class="project-media">
+      <div class="project" role="button" tabindex="0" data-made-for="Personal portfolio piece" data-game="General-purpose vehicle asset — built to slot into any Roblox game needing a hoverboard." data-model="models/king-hover-board.glb">        <div class="project-media">
           <span class="project-tag">Vehicle</span>
           <img src="KIngHover.png" alt="King Hover Board asset">
         </div>
@@ -684,7 +721,7 @@
         </div>
       </div>
 
-      <div class="project" role="button" tabindex="0" data-made-for="Commission — add client / project name here" data-game="Enemy or boss character — add the specific game/purpose here.">
+      <div class="project" role="button" tabindex="0" data-made-for="Commission — add client / project name here" data-game="Enemy or boss character — add the specific game/purpose here." data-model="models/fierce-skeleton.glb">
         <div class="project-media">
           <span class="project-tag">Character</span>
           <img src="AngyBones.png" alt="Fierce Skeleton character asset">
@@ -695,7 +732,7 @@
         </div>
       </div>
 
-      <div class="project" role="button" tabindex="0" data-made-for="Personal portfolio piece" data-game="Environment prop — add the specific game/purpose here.">
+      <div class="project" role="button" tabindex="0" data-made-for="Personal portfolio piece" data-game="Environment prop — add the specific game/purpose here." data-model="models/monster-chair.glb">
         <div class="project-media">
           <span class="project-tag">Prop</span>
           <img src="MonsterChair.png" alt="Monster Chair asset">
@@ -744,9 +781,19 @@
   <div class="project-modal-backdrop" data-close></div>
   <div class="project-modal-panel" role="dialog" aria-modal="true" aria-labelledby="modal-title-text">
     <button class="project-modal-close" type="button" aria-label="Close" data-close>&times;</button>
-    <div class="project-modal-media">
-      <img id="modal-img" src="" alt="">
+    <div class="project-modal-media" id="modal-viewport">
+      <div class="viewport-grid"></div>
+      <span class="vp-corner tl"></span>
+      <span class="vp-corner tr"></span>
+      <span class="vp-corner bl"></span>
+      <span class="vp-corner br"></span>
+      <div class="modal-viewport-slot" id="modal-viewport-slot"></div>
+      <img id="modal-img" alt="" style="display:none;">
       <span class="project-tag" id="modal-tag"></span>
+      <div class="vp-readout status">
+        <span class="dot"></span>
+        <span id="modal-viewport-status">Loading…</span>
+      </div>
     </div>
     <div class="project-modal-body">
       <h3 id="modal-title-text"></h3>
@@ -766,6 +813,52 @@
 </div>
 
 <script>
+  // Corrupted tab-title flicker — occasionally swaps one browser-tab title
+  // character for an alchemical/runic symbol, then reverts.
+  (function () {
+    var baseTitle = document.title;
+    var symbols = ['🜂', '🜃', '🜁', '🜄', '🜚', '☿', '🜛', '᛫', 'ᛊ', 'ᛟ', '𓀂', '𓅆', '𓋒'];
+    var flickerDuration = 140;
+    var minDelay = 1400;
+    var maxDelay = 3600;
+    var timer = null;
+
+    function randomIndex(str) {
+      var candidates = [];
+      for (var i = 0; i < str.length; i++) {
+        if (str[i].trim() !== '') candidates.push(i);
+      }
+      return candidates.length ? candidates[Math.floor(Math.random() * candidates.length)] : -1;
+    }
+
+    function tick() {
+      var idx = randomIndex(baseTitle);
+      if (idx !== -1) {
+        var symbol = symbols[Math.floor(Math.random() * symbols.length)];
+        document.title = baseTitle.slice(0, idx) + symbol + baseTitle.slice(idx + 1);
+        setTimeout(function () { document.title = baseTitle; }, flickerDuration);
+      }
+      schedule();
+    }
+
+    function schedule() {
+      timer = setTimeout(tick, minDelay + Math.random() * (maxDelay - minDelay));
+    }
+
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) {
+        clearTimeout(timer);
+        document.title = baseTitle;
+      } else {
+        schedule();
+      }
+    });
+
+    schedule();
+  })();
+</script>
+
+<script>
   // Custom red circle cursor — follows the mouse, zooms in over links and buttons,
   // and inverts to black when it passes over a light patch of an image.
   // Disables itself on real touch input.
@@ -775,6 +868,42 @@
 
     var mouseX = 0, mouseY = 0;
     var started = false;
+
+    // ---- Build the ring out of independent arc segments ----
+    // Each segment samples the pixel at its own position on the circle, so
+    // only the part of the ring actually over a light area turns black.
+    var SVG_NS = 'http://www.w3.org/2000/svg';
+    var SEGMENT_COUNT = 12;
+    var RING_RADIUS = 12;
+    var GAP_DEGREES = 6;
+    var COLOR_RED = '#c31a28';
+    var COLOR_BLACK = '#0a0a0a';
+
+    ring.setAttribute('viewBox', '-15 -15 30 30');
+    var segments = [];
+    var stepDeg = 360 / SEGMENT_COUNT;
+    for (var i = 0; i < SEGMENT_COUNT; i++) {
+      var startDeg = i * stepDeg + GAP_DEGREES / 2;
+      var endDeg = (i + 1) * stepDeg - GAP_DEGREES / 2;
+      var startRad = startDeg * Math.PI / 180;
+      var endRad = endDeg * Math.PI / 180;
+      var x0 = RING_RADIUS * Math.cos(startRad);
+      var y0 = RING_RADIUS * Math.sin(startRad);
+      var x1 = RING_RADIUS * Math.cos(endRad);
+      var y1 = RING_RADIUS * Math.sin(endRad);
+
+      var path = document.createElementNS(SVG_NS, 'path');
+      path.setAttribute('d', 'M ' + x0.toFixed(2) + ' ' + y0.toFixed(2) +
+        ' A ' + RING_RADIUS + ' ' + RING_RADIUS + ' 0 0 1 ' + x1.toFixed(2) + ' ' + y1.toFixed(2));
+      path.setAttribute('fill', 'none');
+      path.setAttribute('stroke', COLOR_RED);
+      path.setAttribute('stroke-width', '2.4');
+      path.setAttribute('stroke-linecap', 'round');
+      ring.appendChild(path);
+
+      var midRad = ((startDeg + endDeg) / 2) * Math.PI / 180;
+      segments.push({ el: path, cos: Math.cos(midRad), sin: Math.sin(midRad) });
+    }
 
     function positionRing(x, y) {
       ring.style.translate = 'calc(' + x + 'px - 50%) calc(' + y + 'px - 50%)';
@@ -892,42 +1021,221 @@
       return null;
     }
 
+    var frameCount = 0;
     function loop() {
-      var lum = luminanceUnderCursor(mouseX, mouseY);
-      if (lum !== null && lum > 0.6) {
-        ring.classList.add('is-light');
-      } else {
-        ring.classList.remove('is-light');
+      frameCount++;
+      // Sample at ~30fps — plenty smooth for a color change, half the cost.
+      if (frameCount % 2 === 0) {
+        for (var i = 0; i < segments.length; i++) {
+          var seg = segments[i];
+          var sx = mouseX + RING_RADIUS * seg.cos;
+          var sy = mouseY + RING_RADIUS * seg.sin;
+          var lum = luminanceUnderCursor(sx, sy);
+          var isLight = lum !== null && lum > 0.6;
+          seg.el.setAttribute('stroke', isLight ? COLOR_BLACK : COLOR_RED);
+        }
       }
       requestAnimationFrame(loop);
     }
     loop();
   })();
 </script>
-<script>
+<script type="module">
   // Project detail modal — opens on card click/Enter, shows name, description,
-  // who it was made for, and its game/purpose.
+  // who it was made for, its game/purpose, and a rotatable 3D preview.
+  // The preview can only be spun left/right (azimuthal), never tilted up/down,
+  // and zoom/pan are disabled — a deterrent against easy full-turnaround capture.
+  import * as THREE from 'three';
+  import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+  import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
   (function () {
     var modal = document.getElementById('project-modal');
     if (!modal) return;
 
-    var imgEl = document.getElementById('modal-img');
     var tagEl = document.getElementById('modal-tag');
     var titleEl = document.getElementById('modal-title-text');
     var descEl = document.getElementById('modal-desc');
     var madeForEl = document.getElementById('modal-made-for');
     var gameEl = document.getElementById('modal-game');
+    var statusEl = document.getElementById('modal-viewport-status');
+    var slotEl = document.getElementById('modal-viewport-slot');
+    var fallbackImg = document.getElementById('modal-img');
     var closeBtn = modal.querySelector('.project-modal-close');
     var lastFocused = null;
 
+    // ---------------- 3D viewport ----------------
+    var renderer = null, scene = null, camera = null, controls = null, currentMesh = null;
+    var rafId = null;
+    var loader = new GLTFLoader();
+
+    function supportsWebGL() {
+      try {
+        var c = document.createElement('canvas');
+        return !!(window.WebGLRenderingContext && (c.getContext('webgl') || c.getContext('experimental-webgl')));
+      } catch (err) {
+        return false;
+      }
+    }
+
+    function setStatus(text) {
+      if (statusEl) statusEl.textContent = text;
+    }
+
+    function initViewport() {
+      if (renderer) return true;
+      if (!supportsWebGL()) return false;
+
+      var width = slotEl.clientWidth || 1;
+      var height = slotEl.clientHeight || 1;
+
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      renderer.setSize(width, height);
+      slotEl.appendChild(renderer.domElement);
+
+      scene = new THREE.Scene();
+      camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 100);
+      camera.position.set(0, 2.1, 5.4);
+
+      scene.add(new THREE.AmbientLight(0xffffff, 0.55));
+      var key = new THREE.DirectionalLight(0xffffff, 1.1);
+      key.position.set(4, 6, 5);
+      scene.add(key);
+      var rim = new THREE.DirectionalLight(0xb3121f, 0.9); // signature red rim light
+      rim.position.set(-4, 2, -5);
+      scene.add(rim);
+
+      controls = new OrbitControls(camera, renderer.domElement);
+      controls.target.set(0, 0.6, 0);
+      controls.enablePan = false;
+      controls.enableZoom = false;
+      controls.autoRotate = true;
+      controls.autoRotateSpeed = 1.4;
+      // Lock vertical orbit at the camera's current elevation —
+      // this leaves azimuthal (left/right) rotation as the only motion.
+      var fixedPolar = Math.acos(camera.position.y / camera.position.length());
+      controls.minPolarAngle = fixedPolar;
+      controls.maxPolarAngle = fixedPolar;
+      controls.addEventListener('start', function () { controls.autoRotate = false; });
+      controls.update();
+
+      window.addEventListener('resize', onViewportResize);
+      animate();
+      return true;
+    }
+
+    function onViewportResize() {
+      if (!renderer || !camera) return;
+      var width = slotEl.clientWidth || 1;
+      var height = slotEl.clientHeight || 1;
+      camera.aspect = width / height;
+      camera.updateProjectionMatrix();
+      renderer.setSize(width, height);
+    }
+
+    function animate() {
+      rafId = requestAnimationFrame(animate);
+      controls.update();
+      renderer.render(scene, camera);
+    }
+
+    function frameObject(object) {
+      var box = new THREE.Box3().setFromObject(object);
+      var size = box.getSize(new THREE.Vector3());
+      var maxDim = Math.max(size.x, size.y, size.z) || 1;
+      var scaleFactor = 1.6 / maxDim;
+      object.scale.setScalar(scaleFactor);
+
+      box.setFromObject(object);
+      var center = box.getCenter(new THREE.Vector3());
+      object.position.sub(center);
+      object.position.y += size.y * scaleFactor * 0.5;
+    }
+
+    function disposeMaterial(material) {
+      for (var key in material) {
+        if (material[key] && material[key].isTexture) material[key].dispose();
+      }
+      material.dispose();
+    }
+
+    function clearMesh() {
+      if (!currentMesh) return;
+      scene.remove(currentMesh);
+      currentMesh.traverse(function (child) {
+        if (child.geometry) child.geometry.dispose();
+        if (child.material) {
+          var mats = Array.isArray(child.material) ? child.material : [child.material];
+          mats.forEach(disposeMaterial);
+        }
+      });
+      currentMesh = null;
+    }
+
+    function buildPlaceholder() {
+      var group = new THREE.Group();
+      var geo = new THREE.IcosahedronGeometry(0.9, 0);
+      var mat = new THREE.MeshStandardMaterial({
+        color: 0x1c1e24,
+        wireframe: true,
+        emissive: 0xb3121f,
+        emissiveIntensity: 0.25
+      });
+      group.add(new THREE.Mesh(geo, mat));
+      return group;
+    }
+
+    function loadModel(url) {
+      clearMesh();
+      if (!url) {
+        currentMesh = buildPlaceholder();
+        scene.add(currentMesh);
+        frameObject(currentMesh);
+        setStatus('No 3D preview linked for this asset yet');
+        return;
+      }
+      setStatus('Loading model…');
+      loader.load(
+        url,
+        function (gltf) {
+          currentMesh = gltf.scene;
+          scene.add(currentMesh);
+          frameObject(currentMesh);
+          setStatus('Drag to rotate');
+        },
+        undefined,
+        function () {
+          currentMesh = buildPlaceholder();
+          scene.add(currentMesh);
+          frameObject(currentMesh);
+          setStatus('Preview unavailable — showing placeholder');
+        }
+      );
+    }
+
+    function teardownViewport() {
+      if (rafId) cancelAnimationFrame(rafId);
+      rafId = null;
+      window.removeEventListener('resize', onViewportResize);
+      clearMesh();
+      if (controls) controls.dispose();
+      if (renderer) {
+        renderer.dispose();
+        if (renderer.domElement && renderer.domElement.parentNode) {
+          renderer.domElement.parentNode.removeChild(renderer.domElement);
+        }
+      }
+      renderer = null; scene = null; camera = null; controls = null;
+    }
+
+    // ---------------- modal open/close ----------------
     function openFromCard(card) {
       var cardImg = card.querySelector('img');
       var cardTag = card.querySelector('.project-tag');
       var cardTitle = card.querySelector('h1');
       var cardDesc = card.querySelector('p');
 
-      imgEl.src = cardImg ? cardImg.src : '';
-      imgEl.alt = cardImg ? cardImg.alt : '';
       tagEl.textContent = cardTag ? cardTag.textContent : '';
       titleEl.textContent = cardTitle ? cardTitle.textContent : '';
       descEl.textContent = cardDesc ? cardDesc.textContent : '';
@@ -939,12 +1247,30 @@
       modal.setAttribute('aria-hidden', 'false');
       document.body.style.overflow = 'hidden';
       if (closeBtn) closeBtn.focus();
+
+      // Wait a frame so the modal has its final on-screen size before we measure it.
+      requestAnimationFrame(function () {
+        var ok = initViewport();
+        if (ok) {
+          if (fallbackImg) fallbackImg.style.display = 'none';
+          if (slotEl) slotEl.style.display = 'block';
+          loadModel(card.dataset.model || '');
+        } else if (cardImg && fallbackImg) {
+          // No WebGL available — fall back to the flat thumbnail.
+          if (slotEl) slotEl.style.display = 'none';
+          fallbackImg.src = cardImg.src;
+          fallbackImg.alt = cardImg.alt;
+          fallbackImg.style.display = 'block';
+          setStatus('3D preview unavailable in this browser');
+        }
+      });
     }
 
     function closeModal() {
       modal.classList.remove('is-open');
       modal.setAttribute('aria-hidden', 'true');
       document.body.style.overflow = '';
+      teardownViewport();
       if (lastFocused && typeof lastFocused.focus === 'function') lastFocused.focus();
     }
 
