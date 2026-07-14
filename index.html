@@ -860,25 +860,21 @@
 
 <script>
   // Custom red circle cursor — follows the mouse, zooms in over links and buttons,
-  // and inverts to black when it passes over a light patch of an image.
+  // and inverts to black when it passes over a light patch of the page.
   // Disables itself on real touch input.
   (function () {
     var ring = document.querySelector('.cursor-ring');
     if (!ring) return;
-
     var mouseX = 0, mouseY = 0;
     var started = false;
 
     // ---- Build the ring out of independent arc segments ----
-    // Each segment samples the pixel at its own position on the circle, so
-    // only the part of the ring actually over a light area turns black.
     var SVG_NS = 'http://www.w3.org/2000/svg';
     var SEGMENT_COUNT = 48;
     var RING_RADIUS = 12;
     var GAP_DEGREES = 6;
     var COLOR_RED = '#c31a28';
     var COLOR_BLACK = '#0a0a0a';
-
     ring.setAttribute('viewBox', '-15 -15 30 30');
     var segments = [];
     var stepDeg = 360 / SEGMENT_COUNT;
@@ -891,7 +887,6 @@
       var y0 = RING_RADIUS * Math.sin(startRad);
       var x1 = RING_RADIUS * Math.cos(endRad);
       var y1 = RING_RADIUS * Math.sin(endRad);
-
       var path = document.createElementNS(SVG_NS, 'path');
       path.setAttribute('d', 'M ' + x0.toFixed(2) + ' ' + y0.toFixed(2) +
         ' A ' + RING_RADIUS + ' ' + RING_RADIUS + ' 0 0 1 ' + x1.toFixed(2) + ' ' + y1.toFixed(2));
@@ -900,13 +895,13 @@
       path.setAttribute('stroke-width', '2.4');
       path.setAttribute('stroke-linecap', 'round');
       ring.appendChild(path);
-
       var midRad = ((startDeg + endDeg) / 2) * Math.PI / 180;
       segments.push({ el: path, cos: Math.cos(midRad), sin: Math.sin(midRad) });
     }
 
     function positionRing(x, y) {
-      ring.style.translate = 'calc(' + x + 'px - 50%) calc(' + y + 'px - 50%)';
+      // Use translate via style.transform for broader compatibility
+      ring.style.transform = 'translate(calc(' + x + 'px - 50%), calc(' + y + 'px - 50%))';
     }
 
     function onMouseMove(e) {
@@ -938,9 +933,8 @@
       }
     });
 
-    // ---- Light/dark sampling: read the actual pixel under the cursor from each <img> ----
+    // ---- Samplers for same-origin images (existing approach) ----
     var samplers = [];
-
     function buildSampler(img) {
       try {
         var w = img.naturalWidth, h = img.naturalHeight;
@@ -954,10 +948,9 @@
         ctx.getImageData(0, 0, 1, 1);
         samplers.push({ img: img, canvas: canvas, ctx: ctx, w: w, h: h });
       } catch (err) {
-        // Unreadable (e.g. tainted canvas) — just skip; cursor stays red over this image.
+        // Unreadable (e.g. tainted canvas) — skip.
       }
     }
-
     document.querySelectorAll('img').forEach(function (img) {
       if (img.complete && img.naturalWidth) {
         buildSampler(img);
@@ -966,8 +959,41 @@
       }
     });
 
-    // Maps a point inside the element's box to natural image pixel coords,
-    // accounting for object-fit / object-position (so cover-cropped images sample correctly).
+    // ---- Helpers ----
+    function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+
+    function parseCssColor(colorStr) {
+      if (!colorStr) return null;
+      colorStr = colorStr.trim();
+      var rgbaMatch = colorStr.match(/^rgba?\(([^)]+)\)/i);
+      if (rgbaMatch) {
+        var parts = rgbaMatch[1].split(',').map(function (p) { return parseFloat(p.trim()); });
+        var r = parts[0] || 0;
+        var g = parts[1] || 0;
+        var b = parts[2] || 0;
+        var a = parts.length > 3 ? parts[3] : 1;
+        return { r: clamp(Math.round(r), 0, 255), g: clamp(Math.round(g), 0, 255), b: clamp(Math.round(b), 0, 255), a: clamp(a, 0, 1) };
+      }
+      var hexMatch = colorStr.match(/^#([0-9a-f]{3}|[0-9a-f]{6})$/i);
+      if (hexMatch) {
+        var hex = hexMatch[1];
+        if (hex.length === 3) {
+          var r = parseInt(hex[0] + hex[0], 16);
+          var g = parseInt(hex[1] + hex[1], 16);
+          var b = parseInt(hex[2] + hex[2], 16);
+          return { r: r, g: g, b: b, a: 1 };
+        } else {
+          var r = parseInt(hex.slice(0, 2), 16);
+          var g = parseInt(hex.slice(2, 4), 16);
+          var b = parseInt(hex.slice(4, 6), 16);
+          return { r: r, g: g, b: b, a: 1 };
+        }
+      }
+      // Unknown format (gradients, keywords) — return null to indicate unknown.
+      return null;
+    }
+
+    // Map a point inside an image element to natural pixel coords (handles object-fit: cover/contain)
     function mapToNaturalPixel(sampler, rect, px, py) {
       var style = getComputedStyle(sampler.img);
       var fit = style.objectFit || 'fill';
@@ -976,55 +1002,129 @@
       var posYfrac = parseFloat(posParts[1]) / 100;
       if (isNaN(posXfrac)) posXfrac = 0.5;
       if (isNaN(posYfrac)) posYfrac = 0.5;
-
       var scale;
       if (fit === 'cover') {
         scale = Math.max(rect.width / sampler.w, rect.height / sampler.h);
       } else if (fit === 'contain') {
         scale = Math.min(rect.width / sampler.w, rect.height / sampler.h);
       } else {
-        // 'fill' and other modes — approximate with direct proportional mapping.
         return {
           x: Math.min(sampler.w - 1, Math.floor((px / rect.width) * sampler.w)),
           y: Math.min(sampler.h - 1, Math.floor((py / rect.height) * sampler.h))
         };
       }
-
       var displayedW = sampler.w * scale;
       var displayedH = sampler.h * scale;
       var excessX = displayedW - rect.width;
       var excessY = displayedH - rect.height;
       var naturalX = (px + excessX * posXfrac) / scale;
       var naturalY = (py + excessY * posYfrac) / scale;
-
       return {
         x: Math.max(0, Math.min(sampler.w - 1, Math.floor(naturalX))),
         y: Math.max(0, Math.min(sampler.h - 1, Math.floor(naturalY)))
       };
     }
 
+    // ---- Universal luminance sampling ----
+    // Attempts, in order:
+    // 1) If over an <img> with a working sampler, sample that image's pixel.
+    // 2) If over a <video> or <canvas> and same-origin, draw to a temp canvas and sample.
+    // 3) Walk up the element tree to find a non-transparent computed background-color and use that.
+    // 4) Use the element's color (text color) as a fallback.
     function luminanceUnderCursor(x, y) {
-      for (var i = 0; i < samplers.length; i++) {
-        var s = samplers[i];
-        var rect = s.img.getBoundingClientRect();
-        if (x < rect.left || x > rect.right || y < rect.top || y > rect.bottom) continue;
+      try {
+        var el = document.elementFromPoint(x, y);
+        if (!el) return null;
 
-        var px = mapToNaturalPixel(s, rect, x - rect.left, y - rect.top);
-        try {
-          var data = s.ctx.getImageData(px.x, px.y, 1, 1).data;
-          if (data[3] < 32) continue; // mostly transparent — see through to page bg, treat as dark
-          return (0.2126 * data[0] + 0.7152 * data[1] + 0.0722 * data[2]) / 255;
-        } catch (err) {
-          continue;
+        // 1) Image samplers (same-origin images)
+        if (el.tagName && el.tagName.toLowerCase() === 'img') {
+          for (var i = 0; i < samplers.length; i++) {
+            var s = samplers[i];
+            if (s.img === el) {
+              var rect = el.getBoundingClientRect();
+              var px = mapToNaturalPixel(s, rect, x - rect.left, y - rect.top);
+              try {
+                var data = s.ctx.getImageData(px.x, px.y, 1, 1).data;
+                if (data[3] < 32) {
+                  // mostly transparent — treat as dark (see-through)
+                  return 0;
+                }
+                return (0.2126 * data[0] + 0.7152 * data[1] + 0.0722 * data[2]) / 255;
+              } catch (err) {
+                break; // fall through to other strategies
+              }
+            }
+          }
         }
+
+        // 2) Video or canvas elements (attempt to draw current frame)
+        if (el.tagName) {
+          var tag = el.tagName.toLowerCase();
+          if (tag === 'video' || tag === 'canvas') {
+            try {
+              var tmp = document.createElement('canvas');
+              tmp.width = 1;
+              tmp.height = 1;
+              var tctx = tmp.getContext('2d');
+              var rectV = el.getBoundingClientRect();
+              // draw the element scaled so the cursor point maps to the single pixel
+              var sx = (x - rectV.left) / rectV.width;
+              var sy = (y - rectV.top) / rectV.height;
+              // clamp
+              sx = clamp(sx, 0, 1);
+              sy = clamp(sy, 0, 1);
+              // drawImage parameters: draw the element into the 1x1 canvas
+              tctx.drawImage(el, sx * el.width || 0, sy * el.height || 0, 1, 1, 0, 0, 1, 1);
+              var d = tctx.getImageData(0, 0, 1, 1).data;
+              if (d[3] < 32) return 0;
+              return (0.2126 * d[0] + 0.7152 * d[1] + 0.0722 * d[2]) / 255;
+            } catch (err) {
+              // drawing failed (likely cross-origin or not drawable) — continue
+            }
+          }
+        }
+
+        // 3) Walk up ancestors to find a non-transparent background-color
+        var walker = el;
+        while (walker && walker !== document.documentElement) {
+          var style = getComputedStyle(walker);
+          var bg = style.backgroundColor;
+          var parsed = parseCssColor(bg);
+          if (parsed && parsed.a > 0.05) {
+            // Found a usable background color
+            return (0.2126 * parsed.r + 0.7152 * parsed.g + 0.0722 * parsed.b) / 255;
+          }
+          // If background-image is a simple url and the element is an <img> or has a background-image,
+          // we could attempt more advanced handling, but skip for safety.
+          walker = walker.parentElement;
+        }
+
+        // 4) Fallback to element's color (text color) — treat text color as foreground on assumed background
+        var elStyle = getComputedStyle(el);
+        var fg = parseCssColor(elStyle.color);
+        if (fg) {
+          return (0.2126 * fg.r + 0.7152 * fg.g + 0.0722 * fg.b) / 255;
+        }
+
+        // 5) As a last resort, sample the page background
+        var docBg = parseCssColor(getComputedStyle(document.documentElement).backgroundColor) ||
+                    parseCssColor(getComputedStyle(document.body).backgroundColor);
+        if (docBg) {
+          return (0.2126 * docBg.r + 0.7152 * docBg.g + 0.0722 * docBg.b) / 255;
+        }
+
+        return null;
+      } catch (err) {
+        // Any unexpected error — fail gracefully and return null
+        return null;
       }
-      return null;
     }
 
+    // ---- Animation loop: sample segments and update stroke color ----
     var frameCount = 0;
     function loop() {
       frameCount++;
-      // Sample at ~30fps — plenty smooth for a color change, half the cost.
+      // Sample at ~30fps — every other animation frame
       if (frameCount % 2 === 0) {
         for (var i = 0; i < segments.length; i++) {
           var seg = segments[i];
@@ -1040,6 +1140,7 @@
     loop();
   })();
 </script>
+
 <script type="module">
   // Project detail modal — opens on card click/Enter, shows name, description,
   // who it was made for, its game/purpose, and a rotatable 3D preview.
