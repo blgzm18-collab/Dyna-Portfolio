@@ -860,7 +860,8 @@
 
 <script>
   // Custom red circle cursor — follows the mouse, zooms in over links and buttons,
-  // and now inverts to black when it passes over ANY light area (images + backgrounds + text + everything)
+  // and inverts to black when it passes over a light patch of an image.
+  // Disables itself on real touch input.
   (function () {
     var ring = document.querySelector('.cursor-ring');
     if (!ring) return;
@@ -869,6 +870,8 @@
     var started = false;
 
     // ---- Build the ring out of independent arc segments ----
+    // Each segment samples the pixel at its own position on the circle, so
+    // only the part of the ring actually over a light area turns black.
     var SVG_NS = 'http://www.w3.org/2000/svg';
     var SEGMENT_COUNT = 48;
     var RING_RADIUS = 12;
@@ -877,7 +880,6 @@
     var COLOR_BLACK = '#0a0a0a';
 
     ring.setAttribute('viewBox', '-15 -15 30 30');
-
     var segments = [];
     var stepDeg = 360 / SEGMENT_COUNT;
     for (var i = 0; i < SEGMENT_COUNT; i++) {
@@ -916,9 +918,9 @@
         document.documentElement.classList.add('has-custom-cursor');
       }
     }
-
     window.addEventListener('mousemove', onMouseMove);
 
+    // If a genuine touch happens, this isn't a mouse — restore the native cursor.
     window.addEventListener('touchstart', function () {
       document.documentElement.classList.remove('has-custom-cursor');
       window.removeEventListener('mousemove', onMouseMove);
@@ -936,10 +938,9 @@
       }
     });
 
-    // ==================== NEW UNIVERSAL COLOR SAMPLING ====================
-    var samplers = []; // keep your existing image samplers
+    // ---- Light/dark sampling: read the actual pixel under the cursor from each <img> ----
+    var samplers = [];
 
-    // Build image samplers (unchanged - best quality for photos)
     function buildSampler(img) {
       try {
         var w = img.naturalWidth, h = img.naturalHeight;
@@ -949,86 +950,93 @@
         canvas.height = h;
         var ctx = canvas.getContext('2d');
         ctx.drawImage(img, 0, 0, w, h);
+        // Trigger a read now so a cross-origin/tainted canvas fails fast and is skipped.
         ctx.getImageData(0, 0, 1, 1);
-        samplers.push({ img: img, canvas: canvas, ctx: ctx, w: w, h: h, isImage: true });
-      } catch (err) {}
+        samplers.push({ img: img, canvas: canvas, ctx: ctx, w: w, h: h });
+      } catch (err) {
+        // Unreadable (e.g. tainted canvas) — just skip; cursor stays red over this image.
+      }
     }
 
     document.querySelectorAll('img').forEach(function (img) {
-      if (img.complete && img.naturalWidth) buildSampler(img);
-      else img.addEventListener('load', function () { buildSampler(img); }, { once: true });
+      if (img.complete && img.naturalWidth) {
+        buildSampler(img);
+      } else {
+        img.addEventListener('load', function () { buildSampler(img); }, { once: true });
+      }
     });
 
-    // New: General element color sampling
-    function getLuminanceAt(x, y) {
-      // First try image samplers (highest accuracy for photos)
+    // Maps a point inside the element's box to natural image pixel coords,
+    // accounting for object-fit / object-position (so cover-cropped images sample correctly).
+    function mapToNaturalPixel(sampler, rect, px, py) {
+      var style = getComputedStyle(sampler.img);
+      var fit = style.objectFit || 'fill';
+      var posParts = (style.objectPosition || '50% 50%').split(' ');
+      var posXfrac = parseFloat(posParts[0]) / 100;
+      var posYfrac = parseFloat(posParts[1]) / 100;
+      if (isNaN(posXfrac)) posXfrac = 0.5;
+      if (isNaN(posYfrac)) posYfrac = 0.5;
+
+      var scale;
+      if (fit === 'cover') {
+        scale = Math.max(rect.width / sampler.w, rect.height / sampler.h);
+      } else if (fit === 'contain') {
+        scale = Math.min(rect.width / sampler.w, rect.height / sampler.h);
+      } else {
+        // 'fill' and other modes — approximate with direct proportional mapping.
+        return {
+          x: Math.min(sampler.w - 1, Math.floor((px / rect.width) * sampler.w)),
+          y: Math.min(sampler.h - 1, Math.floor((py / rect.height) * sampler.h))
+        };
+      }
+
+      var displayedW = sampler.w * scale;
+      var displayedH = sampler.h * scale;
+      var excessX = displayedW - rect.width;
+      var excessY = displayedH - rect.height;
+      var naturalX = (px + excessX * posXfrac) / scale;
+      var naturalY = (py + excessY * posYfrac) / scale;
+
+      return {
+        x: Math.max(0, Math.min(sampler.w - 1, Math.floor(naturalX))),
+        y: Math.max(0, Math.min(sampler.h - 1, Math.floor(naturalY)))
+      };
+    }
+
+    function luminanceUnderCursor(x, y) {
       for (var i = 0; i < samplers.length; i++) {
         var s = samplers[i];
         var rect = s.img.getBoundingClientRect();
         if (x < rect.left || x > rect.right || y < rect.top || y > rect.bottom) continue;
 
-        if (s.isImage) {
-          // ... your existing mapToNaturalPixel logic here if you want to keep it
-          // (I'll keep it minimal for now)
-          try {
-            var px = { x: Math.floor((x - rect.left) / rect.width * s.w), y: Math.floor((y - rect.top) / rect.height * s.h) };
-            var data = s.ctx.getImageData(px.x, px.y, 1, 1).data;
-            if (data[3] > 32) {
-              return (0.2126 * data[0] + 0.7152 * data[1] + 0.0722 * data[2]) / 255;
-            }
-          } catch (e) {}
+        var px = mapToNaturalPixel(s, rect, x - rect.left, y - rect.top);
+        try {
+          var data = s.ctx.getImageData(px.x, px.y, 1, 1).data;
+          if (data[3] < 32) continue; // mostly transparent — see through to page bg, treat as dark
+          return (0.2126 * data[0] + 0.7152 * data[1] + 0.0722 * data[2]) / 255;
+        } catch (err) {
+          continue;
         }
       }
-
-      // Fallback: sample from any DOM element under cursor
-      const el = document.elementFromPoint(x, y);
-      if (!el) return 0.1; // dark default
-
-      let current = el;
-      let colorStr = null;
-
-      while (current) {
-        const style = getComputedStyle(current);
-        colorStr = style.backgroundColor || style.color;
-
-        if (colorStr && colorStr !== 'rgba(0, 0, 0, 0)' && colorStr !== 'transparent') {
-          break;
-        }
-        current = current.parentElement;
-      }
-
-      if (!colorStr) return 0.1;
-
-      // Parse rgb/rgba to luminance
-      const match = colorStr.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
-      if (match) {
-        const r = parseInt(match[1]);
-        const g = parseInt(match[2]);
-        const b = parseInt(match[3]);
-        return (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
-      }
-
-      return 0.1; // fallback
+      return null;
     }
 
-    // Animation loop
     var frameCount = 0;
     function loop() {
       frameCount++;
-      if (frameCount % 2 === 0) {  // ~30fps sampling
+      // Sample at ~30fps — plenty smooth for a color change, half the cost.
+      if (frameCount % 2 === 0) {
         for (var i = 0; i < segments.length; i++) {
           var seg = segments[i];
           var sx = mouseX + RING_RADIUS * seg.cos;
           var sy = mouseY + RING_RADIUS * seg.sin;
-
-          var lum = getLuminanceAt(sx, sy);
-          var isLight = lum > 0.65;   // tweak threshold if needed
+          var lum = luminanceUnderCursor(sx, sy);
+          var isLight = lum !== null && lum > 0.6;
           seg.el.setAttribute('stroke', isLight ? COLOR_BLACK : COLOR_RED);
         }
       }
       requestAnimationFrame(loop);
     }
-
     loop();
   })();
 </script>
