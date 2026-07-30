@@ -542,3 +542,22 @@ document.getElementById("qcSendBtn").onclick = async () => {
     alert("Failed to send email.");
   }
 };
+
+function addUser(msg) {
+  const messages = document.getElementById("chatMessages");
+  const div = document.createElement("div");
+  div.className = "chat-msg";
+  div.innerHTML = `<b>You:</b> ${msg}`;
+  messages.appendChild(div);
+  messages.scrollTop = messages.scrollHeight;
+}
+
+function addSupport(msg) {
+  const messages = document.getElementById("chatMessages");
+  const div = document.createElement("div");
+  div.className = "chat-msg";
+  div.innerHTML = `<b>Dynabot:</b> ${msg}`;
+  messages.appendChild(div);
+  messages.scrollTop = messages.scrollHeight;
+}
+
