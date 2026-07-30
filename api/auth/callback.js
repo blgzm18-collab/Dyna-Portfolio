@@ -55,4 +55,3 @@ console.log("ENV:", {
   secret: process.env.DISCORD_CLIENT_SECRET,
   redirect: process.env.DISCORD_REDIRECT_URI
 });
-
