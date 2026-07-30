@@ -29,7 +29,7 @@ export default async function handler(req, res) {
     const resend = new Resend(process.env.RESEND_API_KEY);
 
     await resend.emails.send({
-      from: 'noreply@dynamexed.com', // Change to your domain
+      from: 'from: 'onboarding@resend.dev', // Resend sandbox (works immediately)', // Change to your domain
       to: 'dynamexed@gmail.com', // Where you want to receive messages
       replyTo: email,
       subject: `New message from ${name} via Dynabot`,
