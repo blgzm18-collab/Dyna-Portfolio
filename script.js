@@ -1,6 +1,5 @@
-  // Corrupted tab-title flicker — occasionally swaps one browser-tab title
-  // character for an alchemical/runic symbol, then reverts.
-  (function () {
+
+  function () {
     var baseTitle = document.title;
     var symbols = ['🜂', '🜃', '🜁', '🜄', '🜚', '☿', '🜛', '᛫', 'ᛊ', 'ᛟ', '𓀂', '𓅆', '𓋒'];
     var flickerDuration = 140;
