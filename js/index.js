@@ -23,7 +23,7 @@ function flickerTitle() {
   }
 }
 
-flickerTitle();
+
 
 
     function tick() {
@@ -51,12 +51,6 @@ flickerTitle();
 
     schedule();
   })();
-</script>
-
-<script>
-  // Custom red circle cursor — follows the mouse, zooms in over links and buttons,
-  // and inverts to black when it passes over a light patch of an image.
-  // Disables itself on real touch input.
   (function () {
     var ring = document.querySelector('.cursor-ring');
     if (!ring) return;
