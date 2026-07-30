@@ -601,42 +601,94 @@
     .site-footer{ padding:44px 20px 0; }
   }
 
+/* ============================================================
+   CHAT CSS FIXES
+   Add these to your style.css or replace the chat sections
+   ============================================================ */
+
 /* =========================================
-   FLOATING CHAT ICON (SVG)
+   MESSAGE AREA - FIX SCROLLING
    ========================================= */
-#chatIcon{
-  position:fixed;
-  bottom:24px;
-  right:24px;
-  width:56px;
-  height:56px;
+#chatMessages{
+  flex:1;
+  padding:14px;
+  overflow-y:auto;
+  overflow-x:hidden;
+  font-family:var(--body);
+  font-size:0.92rem;
+  color:var(--text);
+  line-height:1.55;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  min-height:0; /* Important for flex scrolling */
+}
+
+#chatMessages::-webkit-scrollbar{
+  width:10px;
+}
+
+#chatMessages::-webkit-scrollbar-thumb{
+  background:var(--accent-dim);
+  border-radius:8px;
+  border:2px solid var(--surface);
+}
+
+#chatMessages::-webkit-scrollbar-thumb:hover{
+  background:var(--accent);
+}
+
+
+/* =========================================
+   MESSAGE BUBBLES - Better spacing
+   ========================================= */
+.chat-msg{
+  padding:10px 12px;
+  background:var(--surface-2);
+  border:1px solid var(--line);
+  border-radius:8px;
+  word-wrap:break-word;
+  word-break:break-word;
+}
+
+.chat-msg b{
+  font-family:var(--mono);
+  color:var(--accent);
+  letter-spacing:0.04em;
+  text-transform:uppercase;
+  display:inline;
+  margin-right:6px;
+}
+
+
+/* =========================================
+   CHAT INPUT - Better focus
+   ========================================= */
+#chatInput{
+  flex:1;
   background:var(--surface);
   border:1px solid var(--line);
-  border-radius:50%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  cursor:pointer;
-  transition:transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
-  z-index:9999;
+  color:var(--text);
+  padding:10px;
+  border-radius:8px;
+  font-family:var(--body);
+  font-size:0.9rem;
+  resize:none;
 }
 
-#chatIcon:hover{
-  background:var(--surface-2);
-  transform:scale(1.07);
-  box-shadow:0 0 14px rgba(0,0,0,0.45);
+#chatInput:focus{
+  outline:none;
+  border-color:var(--accent);
+  box-shadow:0 0 8px rgba(195, 26, 40, 0.2);
 }
 
-#chatIcon svg{
-  width:22px;
-  height:22px;
-  fill:var(--text);
-  pointer-events:none;
+#chatInput::placeholder{
+  color:var(--text-dim);
 }
 
 
 /* =========================================
-   CHAT BOX CONTAINER
+   CHAT BOX - Ensure proper flex layout
    ========================================= */
 #chatBox{
   position:fixed;
@@ -658,190 +710,10 @@
   display:flex;
 }
 
-
-/* =========================================
-   HEADER
-   ========================================= */
-#chatHeader{
-  background:var(--surface-2);
-  padding:14px 16px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  border-bottom:1px solid var(--line);
-}
-
-#chatTitle{
-  font-family:var(--display);
-  font-size:1rem;
-  letter-spacing:0.04em;
-  text-transform:uppercase;
-  color:var(--text);
-}
-
-#chatCloseBtn{
-  background:transparent;
-  border:none;
-  color:var(--text-dim);
-  font-size:1.2rem;
-  cursor:pointer;
-  padding:4px;
-  transition:color 160ms ease;
-}
-
-#chatCloseBtn:hover{
-  color:var(--accent);
-}
-
-
-/* =========================================
-   CHAT BODY
-   ========================================= */
 #chatBody{
   flex:1;
   display:flex;
   flex-direction:column;
   background:var(--surface);
+  min-height:0; /* Important for proper scrolling */
 }
-
-
-/* =========================================
-   MESSAGE AREA
-   ========================================= */
-#chatMessages{
-  flex:1;
-  padding:14px;
-  overflow-y:auto;
-  font-family:var(--body);
-  font-size:0.92rem;
-  color:var(--text);
-  line-height:1.55;
-}
-
-#chatMessages::-webkit-scrollbar{
-  width:10px;
-}
-
-#chatMessages::-webkit-scrollbar-thumb{
-  background:var(--accent-dim);
-  border-radius:8px;
-  border:2px solid var(--surface);
-}
-
-#chatMessages::-webkit-scrollbar-thumb:hover{
-  background:var(--accent);
-}
-
-
-/* =========================================
-   USER INFO PANEL (EMAIL + NAME)
-   ========================================= */
-#userInfo{
-  padding:14px;
-  border-top:1px solid var(--line);
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-  background:var(--surface-2);
-}
-
-#userInfo input{
-  background:var(--surface);
-  border:1px solid var(--line);
-  color:var(--text);
-  padding:10px;
-  border-radius:8px;
-  font-family:var(--body);
-  font-size:0.9rem;
-}
-
-#userInfo input:focus{
-  outline:none;
-  border-color:var(--accent);
-}
-
-#startChatBtn{
-  background:var(--accent);
-  border:none;
-  color:#fff;
-  padding:10px;
-  border-radius:8px;
-  cursor:pointer;
-  font-family:var(--mono);
-  font-size:0.82rem;
-  letter-spacing:0.06em;
-  text-transform:uppercase;
-  transition:background 160ms ease;
-}
-
-#startChatBtn:hover{
-  background:var(--accent-dim);
-}
-
-
-/* =========================================
-   CHAT INPUT AREA
-   ========================================= */
-#chatInputArea{
-  display:none;
-  padding:14px;
-  border-top:1px solid var(--line);
-  background:var(--surface-2);
-  gap:10px;
-}
-
-#chatInput{
-  flex:1;
-  background:var(--surface);
-  border:1px solid var(--line);
-  color:var(--text);
-  padding:10px;
-  border-radius:8px;
-  font-family:var(--body);
-  font-size:0.9rem;
-}
-
-#chatInput:focus{
-  outline:none;
-  border-color:var(--accent);
-}
-
-#sendChatBtn{
-  background:var(--accent);
-  border:none;
-  color:#fff;
-  padding:10px 14px;
-  border-radius:8px;
-  cursor:pointer;
-  font-family:var(--mono);
-  font-size:0.82rem;
-  letter-spacing:0.06em;
-  text-transform:uppercase;
-  transition:background 160ms ease;
-}
-
-#sendChatBtn:hover{
-  background:var(--accent-dim);
-}
-
-
-/* =========================================
-   MESSAGE BUBBLES
-   ========================================= */
-.chat-msg{
-  margin-bottom:12px;
-  padding:8px 10px;
-  background:var(--surface-2);
-  border:1px solid var(--line);
-  border-radius:8px;
-}
-
-.chat-msg b{
-  font-family:var(--mono);
-  color:var(--accent);
-  letter-spacing:0.04em;
-  text-transform:uppercase;
-  display:block;
-  margin-bottom:4px;
-}
-
