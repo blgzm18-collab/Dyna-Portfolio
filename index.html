@@ -743,54 +743,6 @@
   }
 }
 </script>
-
-<script>
-const openBtn = document.getElementById("chatOpenBtn");
-const closeBtn = document.getElementById("chatCloseBtn");
-const chatWindow = document.getElementById("chatWindow");
-const messages = document.getElementById("chatMessages");
-const input = document.getElementById("chatInput");
-const sendBtn = document.getElementById("chatSendBtn");
-
-openBtn.onclick = () => {
-  chatWindow.style.display = "block";
-  openBtn.style.display = "none";
-  addSupport("Hi there! How can we help?");
-};
-
-closeBtn.onclick = () => {
-  chatWindow.style.display = "none";
-  openBtn.style.display = "block";
-};
-
-sendBtn.onclick = () => {
-  const text = input.value.trim();
-  if (!text) return;
-
-  addUser(text);
-  input.value = "";
-
-  setTimeout(() => {
-    addSupport("Thanks! A support agent will reply shortly.");
-  }, 600);
-};
-
-function addUser(msg) {
-  const div = document.createElement("div");
-  div.className = "chat-msg";
-  div.innerHTML = `<b>You:</b> ${msg}`;
-  messages.appendChild(div);
-  messages.scrollTop = messages.scrollHeight;
-}
-
-function addSupport(msg) {
-  const div = document.createElement("div");
-  div.className = "chat-msg";
-  div.innerHTML = `<b>Support:</b> ${msg}`;
-  messages.appendChild(div);
-  messages.scrollTop = messages.scrollHeight;
-}
-</script>
 </head>
 <body>
 
@@ -1481,6 +1433,52 @@ function addSupport(msg) {
       if (e.key === 'Escape' && modal.classList.contains('is-open')) closeModal();
     });
   })();
+
+  const openBtn = document.getElementById("chatOpenBtn");
+const closeBtn = document.getElementById("chatCloseBtn");
+const chatWindow = document.getElementById("chatWindow");
+const messages = document.getElementById("chatMessages");
+const input = document.getElementById("chatInput");
+const sendBtn = document.getElementById("chatSendBtn");
+
+openBtn.onclick = () => {
+  chatWindow.style.display = "block";
+  openBtn.style.display = "none";
+  addSupport("Hi there! How can we help?");
+};
+
+closeBtn.onclick = () => {
+  chatWindow.style.display = "none";
+  openBtn.style.display = "block";
+};
+
+sendBtn.onclick = () => {
+  const text = input.value.trim();
+  if (!text) return;
+
+  addUser(text);
+  input.value = "";
+
+  setTimeout(() => {
+    addSupport("Thanks! A support agent will reply shortly.");
+  }, 600);
+};
+
+function addUser(msg) {
+  const div = document.createElement("div");
+  div.className = "chat-msg";
+  div.innerHTML = `<b>You:</b> ${msg}`;
+  messages.appendChild(div);
+  messages.scrollTop = messages.scrollHeight;
+}
+
+function addSupport(msg) {
+  const div = document.createElement("div");
+  div.className = "chat-msg";
+  div.innerHTML = `<b>Support:</b> ${msg}`;
+  messages.appendChild(div);
+  messages.scrollTop = messages.scrollHeight;
+}
 </script>
 </body>
 </html>
