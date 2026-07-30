@@ -1,19 +1,30 @@
 
-  function () {
-    var baseTitle = document.title;
-    var symbols = ['🜂', '🜃', '🜁', '🜄', '🜚', '☿', '🜛', '᛫', 'ᛊ', 'ᛟ', '𓀂', '𓅆', '𓋒'];
-    var flickerDuration = 140;
-    var minDelay = 1400;
-    var maxDelay = 3600;
-    var timer = null;
+function flickerTitle() {
+  var baseTitle = document.title;
+  var symbols = ['🜂', '🜃', '🜁', '🜄', '🜚', '☿', '🜛', '᛫', 'ᛊ', 'ᛟ', '𓀂', '𓅆', '𓋒'];
+  var flickerDuration = 140;
+  var minDelay = 1400;
+  var maxDelay = 3600;
+  var timer = null;
 
-    function randomIndex(str) {
-      var candidates = [];
-      for (var i = 0; i < str.length; i++) {
-        if (str[i].trim() !== '') candidates.push(i);
-      }
-      return candidates.length ? candidates[Math.floor(Math.random() * candidates.length)] : -1;
+  function randomIndex(str) {
+    var candidates = [];
+    for (var i = 0; i < str.length; i++) {
+      if (str[i].trim() !== '') candidates.push(i);
     }
+    return candidates.length ? candidates[Math.floor(Math.random() * candidates.length)] : -1;
+  }
+
+  function tick() {
+    var idx = randomIndex(baseTitle);
+    if (idx !== -1) {
+      // your flicker logic here
+    }
+  }
+}
+
+flickerTitle();
+
 
     function tick() {
       var idx = randomIndex(baseTitle);
