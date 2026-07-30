@@ -1,11 +1,16 @@
 export default async function handler(req, res) {
   try {
     const code = req.query.code;
-    if (!code) return res.status(400).json({ error: "Missing code" });
+    if (!code) {
+      return res.status(400).json({ error: "Missing code" });
+    }
 
-    const tokenRes = await fetch("https://discord.com/api/oauth2/token", {
+    // Exchange code for access token
+    const tokenResponse = await fetch("https://discord.com/api/oauth2/token", {
       method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
       body: new URLSearchParams({
         client_id: process.env.DISCORD_CLIENT_ID,
         client_secret: process.env.DISCORD_CLIENT_SECRET,
@@ -15,22 +20,32 @@ export default async function handler(req, res) {
       })
     });
 
+    const tokenData = await tokenResponse.json();
 
-    const tokenData = await tokenRes.json();
     if (!tokenData.access_token) {
-      console.error("Token exchange failed:", tokenData);
-      return res.status(500).json({ error: "Token exchange failed" });
+      console.error("Token error:", tokenData);
+      return res.status(500).json({ error: "Token exchange failed", details: tokenData });
     }
 
-    const userRes = await fetch("https://discord.com/api/users/@me", {
-      headers: { Authorization: `Bearer ${tokenData.access_token}` }
+    // Fetch user info
+    const userResponse = await fetch("https://discord.com/api/users/@me", {
+      headers: {
+        Authorization: `Bearer ${tokenData.access_token}`
+      }
     });
-    const user = await userRes.json();
 
-    res.setHeader("Set-Cookie", `user=${encodeURIComponent(JSON.stringify(user))}; Path=/; HttpOnly;`);
+    const user = await userResponse.json();
+
+    // Save user in cookie
+    res.setHeader(
+      "Set-Cookie",
+      `user=${encodeURIComponent(JSON.stringify(user))}; Path=/; HttpOnly; SameSite=Lax`
+    );
+
+    // Redirect back to homepage
     res.redirect("/");
   } catch (err) {
-    console.error("Callback error:", err);
+    console.error("Callback crash:", err);
     res.status(500).json({ error: "Internal Server Error" });
   }
 }
