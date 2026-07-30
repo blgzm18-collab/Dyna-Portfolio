@@ -476,87 +476,30 @@
     });
   })();
 
-const openBtn = document.getElementById("chatOpenBtn");
-const modeSelect = document.getElementById("chatModeSelect");
-const chatWindow = document.getElementById("chatWindow");
-
-const openChatMode = document.getElementById("openChatMode");
-const openQuickMode = document.getElementById("openQuickMode");
-
+const chatIcon = document.getElementById("chatIcon");
+const chatBox = document.getElementById("chatBox");
+const startChatBtn = document.getElementById("startChatBtn");
+const userInfo = document.getElementById("userInfo");
 const chatInputArea = document.getElementById("chatInputArea");
-const quickContactPanel = document.getElementById("quickContactPanel");
+const chatMessages = document.getElementById("chatMessages");
 
-/* OPEN BUTTON → SHOW MODE SELECT */
-openBtn.onclick = () => {
-  openBtn.style.display = "none";
-  modeSelect.style.display = "block";
-};
+chatIcon.onclick = () => chatBox.classList.add("visible");
 
-/* MODE: CHAT */
-openChatMode.onclick = () => {
-  modeSelect.style.display = "none";
-  chatWindow.style.display = "block";
-
-  chatInputArea.style.display = "flex";
-  quickContactPanel.style.display = "none";
-
-  addSupport("Hi there! How can Dynabot assist you?");
-};
-
-/* MODE: QUICK MESSAGE */
-openQuickMode.onclick = () => {
-  modeSelect.style.display = "none";
-  chatWindow.style.display = "block";
-
-  chatInputArea.style.display = "none";
-  quickContactPanel.style.display = "block";
-
-  document.getElementById("chatTitle").textContent = "Quick Message";
-};
-
-/* CLOSE BUTTON */
 document.getElementById("chatCloseBtn").onclick = () => {
-  chatWindow.style.display = "none";
-  modeSelect.style.display = "none";
-  openBtn.style.display = "block";
+  chatBox.classList.remove("visible");
 };
 
-/* EMAIL SENDER */
-document.getElementById("qcSendBtn").onclick = async () => {
-  const msg = document.getElementById("qcMessage").value.trim();
-  if (!msg) return alert("Please type a message.");
-
-  const res = await fetch("/api/contact", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ message: msg })
-  });
-
-  const data = await res.json();
-
-  if (data.success) {
-    alert("Email sent to Dynabot!");
-    document.getElementById("qcMessage").value = "";
-  } else {
-    alert("Failed to send email.");
-  }
+startChatBtn.onclick = () => {
+  const email = document.getElementById("userEmail").value.trim();
+  const name = document.getElementById("userName").value.trim();
+  if (!email || !name) return alert("Please enter both email and name.");
+  userInfo.style.display = "none";
+  chatInputArea.style.display = "flex";
+  addMessage("Dynabot", `Hi ${name}! Send a message for any inquiries.`);
 };
 
-function addUser(msg) {
-  const messages = document.getElementById("chatMessages");
-  const div = document.createElement("div");
-  div.className = "chat-msg";
-  div.innerHTML = `<b>You:</b> ${msg}`;
-  messages.appendChild(div);
-  messages.scrollTop = messages.scrollHeight;
+function addMessage(sender, text) {
+  const msg = document.createElement("div");
+  msg.innerHTML = `<b>${sender}:</b> ${text}`;
+  chatMessages.appendChild(msg);
 }
-
-function addSupport(msg) {
-  const messages = document.getElementById("chatMessages");
-  const div = document.createElement("div");
-  div.className = "chat-msg";
-  div.innerHTML = `<b>Dynabot:</b> ${msg}`;
-  messages.appendChild(div);
-  messages.scrollTop = messages.scrollHeight;
-}
-
