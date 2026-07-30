@@ -601,29 +601,224 @@
     .site-footer{ padding:44px 20px 0; }
   }
 
+/* ================================
+   FLOATING CHAT ICON (SVG BUTTON)
+   ================================ */
+
 #chatIcon {
   position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background: #0078d4;
-  color: white;
+  bottom: 22px;
+  right: 22px;
+  width: 54px;
+  height: 54px;
+  background: #1f6feb; /* GitHub blue */
   border-radius: 50%;
-  padding: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  z-index: 9999;
 }
+
+#chatIcon:hover {
+  transform: scale(1.08);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+}
+
+#chatIcon svg {
+  width: 22px;
+  height: 22px;
+  fill: #fff;
+  pointer-events: none;
+}
+
+
+/* ================================
+   CHAT BOX CONTAINER
+   ================================ */
 
 #chatBox {
   position: fixed;
-  bottom: 80px;
-  right: 20px;
-  width: 300px;
-  background: #fff;
+  bottom: 90px;
+  right: 22px;
+  width: 320px;
+  height: 420px;
+  background: #0d1117; /* GitHub dark */
+  border: 1px solid #30363d;
   border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.2);
   display: none;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.35);
+  z-index: 9999;
 }
 
 #chatBox.visible {
-  display: block;
+  display: flex;
 }
 
+
+/* ================================
+   HEADER
+   ================================ */
+
+#chatHeader {
+  background: #161b22;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #30363d;
+}
+
+#chatTitle {
+  color: #c9d1d9;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+#chatCloseBtn {
+  background: transparent;
+  border: none;
+  color: #c9d1d9;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 4px;
+}
+
+#chatCloseBtn:hover {
+  color: #f85149; /* GitHub red */
+}
+
+
+/* ================================
+   CHAT BODY
+   ================================ */
+
+#chatBody {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: #0d1117;
+}
+
+
+/* ================================
+   MESSAGE AREA
+   ================================ */
+
+#chatMessages {
+  flex: 1;
+  padding: 10px;
+  overflow-y: auto;
+  color: #c9d1d9;
+  font-size: 14px;
+}
+
+#chatMessages::-webkit-scrollbar {
+  width: 6px;
+}
+
+#chatMessages::-webkit-scrollbar-thumb {
+  background: #30363d;
+  border-radius: 10px;
+}
+
+
+/* ================================
+   USER INFO PANEL (EMAIL + NAME)
+   ================================ */
+
+#userInfo {
+  padding: 10px;
+  border-top: 1px solid #30363d;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+#userInfo input {
+  background: #161b22;
+  border: 1px solid #30363d;
+  color: #c9d1d9;
+  padding: 8px;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+#userInfo input:focus {
+  outline: none;
+  border-color: #1f6feb;
+}
+
+#startChatBtn {
+  background: #238636; /* GitHub green */
+  border: none;
+  color: #fff;
+  padding: 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+#startChatBtn:hover {
+  background: #2ea043;
+}
+
+
+/* ================================
+   CHAT INPUT AREA
+   ================================ */
+
+#chatInputArea {
+  display: none;
+  padding: 10px;
+  border-top: 1px solid #30363d;
+  background: #161b22;
+  gap: 8px;
+}
+
+#chatInput {
+  flex: 1;
+  background: #0d1117;
+  border: 1px solid #30363d;
+  color: #c9d1d9;
+  padding: 8px;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+#chatInput:focus {
+  outline: none;
+  border-color: #1f6feb;
+}
+
+#sendChatBtn {
+  background: #1f6feb;
+  border: none;
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+#sendChatBtn:hover {
+  background: #388bfd;
+}
+
+
+/* ================================
+   MESSAGE BUBBLES
+   ================================ */
+
+.chat-msg {
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+
+.chat-msg b {
+  color: #58a6ff;
+}
