@@ -624,6 +624,48 @@
 </head>
 <body>
 
+  <div style="padding:20px; background:#111; color:white;">
+  <h2>Live Chat Test</h2>
+
+  <div id="chat-box" style="height:200px; overflow-y:auto; background:#222; padding:10px; margin-bottom:10px;">
+    Loading chat...
+  </div>
+
+  <input id="chat-user" placeholder="Your name" style="padding:5px; width:150px;">
+  <input id="chat-text" placeholder="Message" style="padding:5px; width:200px;">
+  <button onclick="sendMessage()" style="padding:5px;">Send</button>
+</div>
+
+<script>
+  async function loadChat() {
+    const res = await fetch('/api/chat');
+    const messages = await res.json();
+
+    const box = document.getElementById('chat-box');
+    box.innerHTML = messages.map(m =>
+      `<div><strong>${m.user}</strong> (${m.time}): ${m.text}</div>`
+    ).join('');
+  }
+
+  async function sendMessage() {
+    const user = document.getElementById('chat-user').value || "Anon";
+    const text = document.getElementById('chat-text').value;
+
+    await fetch('/api/chat', {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ user, text })
+    });
+
+    document.getElementById('chat-text').value = "";
+    loadChat();
+  }
+
+  loadChat();
+  setInterval(loadChat, 2000); // auto-refresh chat
+</script>
+
+
 <svg class="cursor-ring" aria-hidden="true"></svg>
 
 <nav>
