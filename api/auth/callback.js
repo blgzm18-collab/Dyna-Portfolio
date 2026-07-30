@@ -5,7 +5,6 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "Missing code" });
     }
 
-    // Exchange code for access token
     const tokenResponse = await fetch("https://discord.com/api/oauth2/token", {
       method: "POST",
       headers: {
@@ -27,7 +26,6 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: "Token exchange failed", details: tokenData });
     }
 
-    // Fetch user info
     const userResponse = await fetch("https://discord.com/api/users/@me", {
       headers: {
         Authorization: `Bearer ${tokenData.access_token}`
@@ -36,22 +34,14 @@ export default async function handler(req, res) {
 
     const user = await userResponse.json();
 
-    // Save user in cookie
     res.setHeader(
       "Set-Cookie",
       `user=${encodeURIComponent(JSON.stringify(user))}; Path=/; HttpOnly; SameSite=Lax`
     );
 
-    // Redirect back to homepage
     res.redirect("/");
   } catch (err) {
     console.error("Callback crash:", err);
     res.status(500).json({ error: "Internal Server Error" });
   }
 }
-
-console.log("ENV:", {
-  id: process.env.DISCORD_CLIENT_ID,
-  secret: process.env.DISCORD_CLIENT_SECRET,
-  redirect: process.env.DISCORD_REDIRECT_URI
-});
