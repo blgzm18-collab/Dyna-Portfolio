@@ -1,5 +1,4 @@
-
-function flickerTitle() {
+(function flickerTitle() {
   var baseTitle = document.title;
   var symbols = ['🜂', '🜃', '🜁', '🜄', '🜚', '☿', '🜛', '᛫', 'ᛊ', 'ᛟ', '𓀂', '𓅆', '𓋒'];
   var flickerDuration = 140;
@@ -12,45 +11,42 @@ function flickerTitle() {
     for (var i = 0; i < str.length; i++) {
       if (str[i].trim() !== '') candidates.push(i);
     }
-    return candidates.length ? candidates[Math.floor(Math.random() * candidates.length)] : -1;
+    return candidates.length
+      ? candidates[Math.floor(Math.random() * candidates.length)]
+      : -1;
   }
 
   function tick() {
     var idx = randomIndex(baseTitle);
     if (idx !== -1) {
-      // your flicker logic here
+      var symbol = symbols[Math.floor(Math.random() * symbols.length)];
+      document.title =
+        baseTitle.slice(0, idx) +
+        symbol +
+        baseTitle.slice(idx + 1);
+      setTimeout(function () {
+        document.title = baseTitle;
+      }, flickerDuration);
     }
+    schedule();
   }
-}
 
+  function schedule() {
+    timer = setTimeout(tick, minDelay + Math.random() * (maxDelay - minDelay));
+  }
 
-
-
-    function tick() {
-      var idx = randomIndex(baseTitle);
-      if (idx !== -1) {
-        var symbol = symbols[Math.floor(Math.random() * symbols.length)];
-        document.title = baseTitle.slice(0, idx) + symbol + baseTitle.slice(idx + 1);
-        setTimeout(function () { document.title = baseTitle; }, flickerDuration);
-      }
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) {
+      clearTimeout(timer);
+      document.title = baseTitle;
+    } else {
       schedule();
     }
+  });
 
-    function schedule() {
-      timer = setTimeout(tick, minDelay + Math.random() * (maxDelay - minDelay));
-    }
+  schedule();
+})();
 
-    document.addEventListener('visibilitychange', function () {
-      if (document.hidden) {
-        clearTimeout(timer);
-        document.title = baseTitle;
-      } else {
-        schedule();
-      }
-    });
-
-    schedule();
-  })();
   (function () {
     var ring = document.querySelector('.cursor-ring');
     if (!ring) return;
