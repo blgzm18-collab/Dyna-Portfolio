@@ -1,0 +1,28 @@
+{
+  "name": "dyna-portfolio",
+  "version": "1.0.0",
+  "description": "- A portfolio",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/blgzm18-collab/Dyna-Portfolio.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/blgzm18-collab/Dyna-Portfolio/issues"
+  },
+  "homepage": "https://github.com/blgzm18-collab/Dyna-Portfolio#readme",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "nodemailer": "^9.0.3"
+  }
+}
