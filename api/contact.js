@@ -1,126 +1,92 @@
-/* ============================================================
-   DYNABOT CHAT — FULL FRONTEND JS (UPDATED)
-   ============================================================ */
+// api/contact.js
+// Vercel serverless function with better error handling
 
-const chatIcon        = document.getElementById("chatIcon");
-const chatBox         = document.getElementById("chatBox");
-const chatCloseBtn    = document.getElementById("chatCloseBtn");
-
-const userInfo        = document.getElementById("userInfo");
-const userEmail       = document.getElementById("userEmail");
-const userName        = document.getElementById("userName");
-const startChatBtn    = document.getElementById("startChatBtn");
-
-const chatMessages    = document.getElementById("chatMessages");
-const chatInputArea   = document.getElementById("chatInputArea");
-const chatInput       = document.getElementById("chatInput");
-const sendChatBtn     = document.getElementById("sendChatBtn");
-
-
-/* ============================================================
-   OPEN / CLOSE CHAT
-   ============================================================ */
-
-chatIcon.onclick = () => {
-  chatBox.classList.add("visible");
-  chatInput.focus(); // Focus input when chat opens
-};
-
-chatCloseBtn.onclick = () => {
-  chatBox.classList.remove("visible");
-
-  // Reset state
-  userInfo.style.display = "flex";
-  chatInputArea.style.display = "none";
-  chatMessages.innerHTML = "";
-};
-
-
-/* ============================================================
-   START CHAT (Collect Email + Name)
-   ============================================================ */
-
-startChatBtn.onclick = () => {
-  const email = userEmail.value.trim();
-  const name  = userName.value.trim();
-
-  if (!email || !name) {
-    alert("Please enter both email and name.");
-    return;
+export default async function handler(req, res) {
+  // Only allow POST requests
+  if (req.method !== 'POST') {
+    return res.status(405).json({ success: false, error: 'Method not allowed' });
   }
 
-  userInfo.style.display = "none";
-  chatInputArea.style.display = "flex";
-  
-  addMessage("Dynabot", `Hello ${name}. How can I assist you today?`);
-  chatInput.focus();
-};
+  const { email, name, message } = req.body;
 
+  // Validate inputs
+  if (!email || !name || !message) {
+    return res.status(400).json({ success: false, error: 'Missing required fields' });
+  }
 
-/* ============================================================
-   SEND MESSAGE (Used by both button and Enter key)
-   ============================================================ */
+  // Basic email validation
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    return res.status(400).json({ success: false, error: 'Invalid email format' });
+  }
 
-async function sendMessage() {
-  const text = chatInput.value.trim();
-  if (!text) return;
+  // Check if RESEND_API_KEY is set
+  if (!process.env.RESEND_API_KEY) {
+    console.error('RESEND_API_KEY is not set in environment variables');
+    return res.status(500).json({ 
+      success: false, 
+      error: 'Server configuration error: Missing API key' 
+    });
+  }
 
-  // Add user message and get the element
-  const msgEl = addMessage("You", text);
-  chatInput.value = "";
-
-  // Send to backend
   try {
-    const res = await fetch("/api/contact", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        email: userEmail.value.trim(),
-        name: userName.value.trim(),
-        message: text
-      })
+    const { Resend } = await import('resend');
+    const resend = new Resend(process.env.RESEND_API_KEY);
+
+    const emailResult = await resend.emails.send({
+      from: 'onboarding@resend.dev',
+      to: 'dynamexed@gmail.com',
+      replyTo: email,
+      subject: `New message from ${name} via Dynabot`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2>📬 New contact from Dynabot</h2>
+          <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+          
+          <p><strong>Name:</strong> ${escapeHtml(name)}</p>
+          <p><strong>Email:</strong> ${escapeHtml(email)}</p>
+          
+          <h3>Message:</h3>
+          <p style="background: #f5f5f5; padding: 15px; border-radius: 8px; white-space: pre-wrap;">
+            ${escapeHtml(message)}
+          </p>
+          
+          <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+          <p style="font-size: 12px; color: #888;">
+            Reply-To: ${escapeHtml(email)}
+          </p>
+        </div>
+      `,
     });
 
-    const data = await res.json();
-
-    if (data.success) {
-      // Add checkmark to user message instead of a separate bot message
-      msgEl.innerHTML += ' <span style="color: var(--accent); font-size: 0.8rem; margin-left: 6px;">✓ delivered</span>';
-    } else {
-      addMessage("Dynabot", "❌ Failed to send your message.");
+    if (emailResult.error) {
+      console.error('Resend error:', emailResult.error);
+      return res.status(500).json({ 
+        success: false, 
+        error: 'Failed to send email: ' + emailResult.error.message 
+      });
     }
 
-  } catch (err) {
-    addMessage("Dynabot", "❌ Error sending message.");
+    console.log('Email sent successfully:', emailResult.data.id);
+    return res.status(200).json({ success: true, messageId: emailResult.data.id });
+
+  } catch (error) {
+    console.error('Contact form error:', error);
+    return res.status(500).json({ 
+      success: false, 
+      error: 'Server error: ' + (error.message || 'Unknown error') 
+    });
   }
 }
 
-// Send button click
-sendChatBtn.onclick = sendMessage;
-
-// Enter key to send (Shift+Enter for new line if you want to add that later)
-chatInput.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter' && !e.shiftKey) {
-    e.preventDefault();
-    sendMessage();
-  }
-});
-
-
-/* ============================================================
-   MESSAGE RENDERING
-   ============================================================ */
-
-function addMessage(sender, text) {
-  const msg = document.createElement("div");
-  msg.className = "chat-msg";
-  msg.innerHTML = `<b>${sender}</b> ${text}`;
-  chatMessages.appendChild(msg);
-  
-  // Scroll to bottom with a small delay to ensure it works
-  setTimeout(() => {
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-  }, 0);
-  
-  return msg; // Return element so we can add the delivered checkmark
+// Helper function to escape HTML
+function escapeHtml(text) {
+  const map = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#039;'
+  };
+  return text.replace(/[&<>"']/g, m => map[m]);
 }
