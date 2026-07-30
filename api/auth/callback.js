@@ -15,6 +15,7 @@ export default async function handler(req, res) {
       })
     });
 
+
     const tokenData = await tokenRes.json();
     if (!tokenData.access_token) {
       console.error("Token exchange failed:", tokenData);
