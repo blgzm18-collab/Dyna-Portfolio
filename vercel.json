@@ -1,1 +1,7 @@
-
+{
+  "version": 2,
+  "buildCommand": "npm install",
+  "env": {
+    "RESEND_API_KEY": "@resend_api_key"
+  }
+}
