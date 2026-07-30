@@ -49,3 +49,10 @@ export default async function handler(req, res) {
     res.status(500).json({ error: "Internal Server Error" });
   }
 }
+
+console.log("ENV:", {
+  id: process.env.DISCORD_CLIENT_ID,
+  secret: process.env.DISCORD_CLIENT_SECRET,
+  redirect: process.env.DISCORD_REDIRECT_URI
+});
+
