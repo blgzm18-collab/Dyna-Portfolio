@@ -224,8 +224,6 @@
     }
     loop();
   })();
-</script>
-<script type="module">
   // Project detail modal — opens on card click/Enter, shows name, description,
   // who it was made for, its game/purpose, and a rotatable 3D preview.
   // The preview can only be spun left/right (azimuthal), never tilted up/down,
