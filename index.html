@@ -734,6 +734,68 @@
   font-size: 0.78rem;
 }
 
+/* FIRST SCREEN MODE SELECT */
+#chatModeSelect {
+  display: none;
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 320px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.55);
+  z-index: 9999;
+}
+
+.modeBox {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+#openChatMode,
+#openQuickMode {
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  color: var(--text);
+  padding: 12px;
+  border-radius: 10px;
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: background 180ms ease, transform 180ms ease;
+}
+
+#openChatMode:hover,
+#openQuickMode:hover {
+  background: var(--accent);
+  transform: translateY(-2px);
+}
+
+/* Quick Contact Panel */
+#quickContactPanel {
+  display: none;
+  padding: 14px;
+  background: var(--surface);
+  border-top: 1px solid var(--line);
+}
+
+#qcMessage {
+  width: 100%;
+  height: 120px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 12px;
+  color: var(--text);
+  resize: none;
+  margin-bottom: 12px;
+}
+
+  
 </style>
 <script type="importmap">
 {
@@ -747,11 +809,21 @@
 <body>
 
 <div id="supportChat">
-  <button id="chatOpenBtn">Support</button>
+<div id="supportChat">
+  <button id="chatOpenBtn">Dynabot</button>
 
+  <!-- FIRST SCREEN: Mode Selector -->
+  <div id="chatModeSelect">
+    <div class="modeBox">
+      <button id="openChatMode">Chat</button>
+      <button id="openQuickMode">Quick Message</button>
+    </div>
+  </div>
+
+  <!-- MAIN CHAT WINDOW -->
   <div id="chatWindow">
     <div id="chatHeader">
-      <span>Support</span>
+      <span id="chatTitle">Dynabot</span>
       <button id="chatCloseBtn">×</button>
     </div>
 
@@ -761,8 +833,15 @@
       <input id="chatInput" type="text" placeholder="Type your message..." />
       <button id="chatSendBtn">Send</button>
     </div>
+
+    <!-- Quick Contact Panel -->
+    <div id="quickContactPanel">
+      <textarea id="qcMessage" placeholder="Type your message..."></textarea>
+      <button id="qcSendBtn">Send Email</button>
+    </div>
   </div>
 </div>
+
 
   
 <svg class="cursor-ring" aria-hidden="true"></svg>
@@ -1434,51 +1513,71 @@
     });
   })();
 
-  const openBtn = document.getElementById("chatOpenBtn");
-const closeBtn = document.getElementById("chatCloseBtn");
+const openBtn = document.getElementById("chatOpenBtn");
+const modeSelect = document.getElementById("chatModeSelect");
 const chatWindow = document.getElementById("chatWindow");
-const messages = document.getElementById("chatMessages");
-const input = document.getElementById("chatInput");
-const sendBtn = document.getElementById("chatSendBtn");
 
+const openChatMode = document.getElementById("openChatMode");
+const openQuickMode = document.getElementById("openQuickMode");
+
+const chatInputArea = document.getElementById("chatInputArea");
+const quickContactPanel = document.getElementById("quickContactPanel");
+
+/* OPEN BUTTON → SHOW MODE SELECT */
 openBtn.onclick = () => {
-  chatWindow.style.display = "block";
   openBtn.style.display = "none";
-  addSupport("Hi there! How can we help?");
+  modeSelect.style.display = "block";
 };
 
-closeBtn.onclick = () => {
+/* MODE: CHAT */
+openChatMode.onclick = () => {
+  modeSelect.style.display = "none";
+  chatWindow.style.display = "block";
+
+  chatInputArea.style.display = "flex";
+  quickContactPanel.style.display = "none";
+
+  addSupport("Hi there! How can Dynabot assist you?");
+};
+
+/* MODE: QUICK MESSAGE */
+openQuickMode.onclick = () => {
+  modeSelect.style.display = "none";
+  chatWindow.style.display = "block";
+
+  chatInputArea.style.display = "none";
+  quickContactPanel.style.display = "block";
+
+  document.getElementById("chatTitle").textContent = "Quick Message";
+};
+
+/* CLOSE BUTTON */
+document.getElementById("chatCloseBtn").onclick = () => {
   chatWindow.style.display = "none";
+  modeSelect.style.display = "none";
   openBtn.style.display = "block";
 };
 
-sendBtn.onclick = () => {
-  const text = input.value.trim();
-  if (!text) return;
+/* EMAIL SENDER */
+document.getElementById("qcSendBtn").onclick = async () => {
+  const msg = document.getElementById("qcMessage").value.trim();
+  if (!msg) return alert("Please type a message.");
 
-  addUser(text);
-  input.value = "";
+  const res = await fetch("/api/contact", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ message: msg })
+  });
 
-  setTimeout(() => {
-    addSupport("Thanks! A support agent will reply shortly.");
-  }, 600);
+  const data = await res.json();
+
+  if (data.success) {
+    alert("Email sent to Dynabot!");
+    document.getElementById("qcMessage").value = "";
+  } else {
+    alert("Failed to send email.");
+  }
 };
-
-function addUser(msg) {
-  const div = document.createElement("div");
-  div.className = "chat-msg";
-  div.innerHTML = `<b>You:</b> ${msg}`;
-  messages.appendChild(div);
-  messages.scrollTop = messages.scrollHeight;
-}
-
-function addSupport(msg) {
-  const div = document.createElement("div");
-  div.className = "chat-msg";
-  div.innerHTML = `<b>Support:</b> ${msg}`;
-  messages.appendChild(div);
-  messages.scrollTop = messages.scrollHeight;
-}
 </script>
 </body>
 </html>
