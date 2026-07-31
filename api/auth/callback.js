@@ -45,3 +45,12 @@ export default async function handler(req, res) {
     res.status(500).json({ error: "Internal Server Error" });
   }
 }
+
+const DYNA_ID = "1216256359280939111";
+
+if (discordUser.id === DYNA_ID) {
+  // user is Dyna
+  // continue to moderator dashboard
+} else {
+  // deny access
+}
