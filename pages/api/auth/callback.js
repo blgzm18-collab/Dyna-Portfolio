@@ -42,6 +42,8 @@ export default async function handler(req, res) {
       `user=${encodeURIComponent(JSON.stringify(discordUser))}; Path=/; HttpOnly; SameSite=Lax`
     );
 
+    const DYNA_ID = "1216256359280939111"; // Dyna’s Discord ID
+    
     // Moderators
     const MOD_IDS = [
       "1216256359280939111", // Dyna
