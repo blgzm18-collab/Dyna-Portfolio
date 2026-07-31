@@ -157,7 +157,7 @@
   document.addEventListener('focusout', function (e) {
     setActiveState(false);
   });
-})();
+
   var samplers = [];
 
   function buildSampler(img) {
