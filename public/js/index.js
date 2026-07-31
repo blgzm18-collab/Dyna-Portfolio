@@ -723,3 +723,11 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
     return msg;
   }
 })();
+
+document.getElementById("dyna-status").textContent =
+  isOnline ? "Online" : "Offline";
+
+document.documentElement.style.setProperty(
+  "--accent",
+  isOnline ? "#00ff88" : "#ff4444"
+);
