@@ -1,3 +1,59 @@
+document.addEventListener("DOMContentLoaded", async () => {
+  const content = await fetch("/content.json").then(r => r.json());
+
+  // Brand
+  document.querySelector(".brand h1").textContent = content.brand.title;
+  document.getElementById("dyna-status").textContent = content.brand.tagline;
+
+  // Nav links
+  document.querySelector('button[onclick*="aboutMe"]').textContent = content.nav.links.about;
+  document.querySelector('button[onclick*="projects"]').textContent = content.nav.links.projects;
+  document.querySelector('button[onclick*="footer"]').textContent = content.nav.links.contact;
+
+  // Hero section
+  document.querySelector(".hero-copy .hud-tag").textContent = content.hero.sceneTag;
+  document.querySelector(".hero-copy h2").innerHTML = content.hero.headline;
+  document.querySelector(".hero-copy p").innerHTML = content.hero.description;
+
+  document.querySelector(".hero-cta .btn-primary").textContent = content.hero.ctaPrimary;
+  document.querySelector(".hero-cta .btn-ghost").textContent = content.hero.ctaSecondary;
+
+  // Viewport labels
+  document.querySelector(".vp-readout.top span:nth-child(1)").textContent = content.hero.viewport.objLabel;
+  document.querySelector(".vp-readout.top span:nth-child(2)").textContent = content.hero.viewport.objScale;
+  document.querySelector(".vp-readout.status span:nth-child(2)").textContent = content.hero.viewport.status;
+
+  // Projects section header
+  document.querySelector("#projects .section-head h2").textContent = content.projectsSection.title;
+  document.querySelector("#projects .section-head p").textContent = content.projectsSection.subtitle;
+
+  // Projects list
+  const projectEls = document.querySelectorAll(".project");
+
+  content.projects.forEach((proj, i) => {
+    const el = projectEls[i];
+    el.querySelector(".project-tag").textContent = proj.tag;
+    el.querySelector(".project-body h1").textContent = proj.title;
+    el.querySelector(".project-body p").textContent = proj.description;
+
+    // Update data attributes
+    el.dataset.madeFor = proj.madeFor;
+    el.dataset.game = proj.gamePurpose;
+  });
+
+  // Footer
+  document.querySelector(".footer-column h3").textContent = content.footer.brand;
+  document.querySelector(".footer-column p").textContent = content.footer.tagline;
+  document.querySelector(".footer-bottom p").textContent = content.footer.bottomText;
+
+  // Legal links
+  const legalLinks = document.querySelectorAll(".legal-links a");
+  legalLinks[0].textContent = content.footer.legal.privacy;
+  legalLinks[1].textContent = content.footer.legal.terms;
+  legalLinks[2].textContent = content.footer.legal.cookies;
+  legalLinks[3].textContent = content.footer.legal.moderator;
+});
+
 /* ============================================================
    TAB TITLE FLICKER
    ============================================================ */
