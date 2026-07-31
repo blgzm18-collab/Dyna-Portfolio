@@ -43,7 +43,11 @@ export default async function handler(req, res) {
     );
 
     // ---- Dyna presence check (Option B) ----
-    const DYNA_ID = "1216256359280939111";
+    const MOD_IDS = [
+      "1216256359280939111", // Dyna
+      "1415809741254426714" // You
+    ];
+
 
     const dynaPresenceResponse = await fetch(
       `https://discord.com/api/v10/users/${DYNA_ID}/profile`,
@@ -68,9 +72,10 @@ export default async function handler(req, res) {
     );
 
     // Redirect to moderator dashboard if the logged-in user *is* Dyna
-    if (discordUser.id === DYNA_ID) {
+    if (MOD_IDS.includes(discordUser.id)) {
       return res.redirect("/moderator");
     }
+
 
     // Otherwise redirect home
     res.redirect("/");
