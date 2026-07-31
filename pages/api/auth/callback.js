@@ -1,6 +1,7 @@
 export default async function handler(req, res) {
   try {
     const code = req.query.code;
+
     if (!code) {
       return res.status(400).json({ error: "Missing code" });
     }
@@ -24,7 +25,10 @@ export default async function handler(req, res) {
 
     if (!tokenData.access_token) {
       console.error("Token error:", tokenData);
-      return res.status(500).json({ error: "Token exchange failed", details: tokenData });
+      return res.status(500).json({
+        error: "Token exchange failed",
+        details: tokenData
+      });
     }
 
     // Fetch logged-in user
@@ -42,9 +46,7 @@ export default async function handler(req, res) {
       `user=${encodeURIComponent(JSON.stringify(discordUser))}; Path=/; HttpOnly; SameSite=Lax`
     );
 
-    const DYNA_ID = "1216256359280939111"; // Dyna’s Discord ID
-    
-    // Moderators
+    // Moderator whitelist
     const MOD_IDS = [
       "1216256359280939111", // Dyna
       "1415809741254426714"  // You
@@ -56,9 +58,12 @@ export default async function handler(req, res) {
     }
 
     // Otherwise redirect home
-    res.redirect("/");
+    return res.redirect("/");
   } catch (err) {
     console.error("Callback crash:", err);
-    res.status(500).json({ error: "Internal Server Error", details: err.message });
+    return res.status(500).json({
+      error: "Internal Server Error",
+      details: err.message
+    });
   }
 }
