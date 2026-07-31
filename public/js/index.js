@@ -53,22 +53,25 @@
 
   var mouseX = 0, mouseY = 0;
   var started = false;
-
   var SVG_NS = 'http://www.w3.org/2000/svg';
   var SEGMENT_COUNT = 48;
-  var RING_RADIUS = 12;
+  var RING_RADIUS = 14;
   var GAP_DEGREES = 6;
   var COLOR_RED = '#c31a28';
+  var COLOR_ACTIVE = '#ff4444';
   var COLOR_BLACK = '#0a0a0a';
 
   ring.setAttribute('viewBox', '-15 -15 30 30');
+
   var segments = [];
   var stepDeg = 360 / SEGMENT_COUNT;
+
   for (var i = 0; i < SEGMENT_COUNT; i++) {
     var startDeg = i * stepDeg + GAP_DEGREES / 2;
     var endDeg = (i + 1) * stepDeg - GAP_DEGREES / 2;
     var startRad = startDeg * Math.PI / 180;
     var endRad = endDeg * Math.PI / 180;
+
     var x0 = RING_RADIUS * Math.cos(startRad);
     var y0 = RING_RADIUS * Math.sin(startRad);
     var x1 = RING_RADIUS * Math.cos(endRad);
@@ -81,10 +84,15 @@
     path.setAttribute('stroke', COLOR_RED);
     path.setAttribute('stroke-width', '2.4');
     path.setAttribute('stroke-linecap', 'round');
+    path.setAttribute('class', 'cursor-segment');
     ring.appendChild(path);
 
     var midRad = ((startDeg + endDeg) / 2) * Math.PI / 180;
-    segments.push({ el: path, cos: Math.cos(midRad), sin: Math.sin(midRad) });
+    segments.push({ 
+      el: path, 
+      cos: Math.cos(midRad), 
+      sin: Math.sin(midRad) 
+    });
   }
 
   function positionRing(x, y) {
@@ -95,30 +103,61 @@
     mouseX = e.clientX;
     mouseY = e.clientY;
     positionRing(mouseX, mouseY);
+    
     if (!started) {
       started = true;
       document.documentElement.classList.add('has-custom-cursor');
     }
   }
-  window.addEventListener('mousemove', onMouseMove);
 
+  window.addEventListener('mousemove', onMouseMove);
   window.addEventListener('touchstart', function () {
+    started = false;
     document.documentElement.classList.remove('has-custom-cursor');
-    window.removeEventListener('mousemove', onMouseMove);
   }, { passive: true });
 
-  var hoverTargets = 'a, button, [role="button"]';
-  document.addEventListener('mouseover', function (e) {
-    if (e.target.closest && e.target.closest(hoverTargets)) {
+  // Expanded hover targets - all interactive elements
+  var hoverTargets = 'a, button, [role="button"], input, textarea, select, [contenteditable], .clickable, [onclick], label';
+
+  function setActiveState(isActive) {
+    if (isActive) {
       ring.classList.add('is-active');
-    }
-  });
-  document.addEventListener('mouseout', function (e) {
-    if (e.target.closest && e.target.closest(hoverTargets)) {
+      segments.forEach(function(seg) {
+        seg.el.setAttribute('stroke', COLOR_ACTIVE);
+      });
+    } else {
       ring.classList.remove('is-active');
+      segments.forEach(function(seg) {
+        seg.el.setAttribute('stroke', COLOR_RED);
+      });
+    }
+  }
+
+  document.addEventListener('mouseover', function (e) {
+    var target = e.target;
+    if (target.closest && target.closest(hoverTargets)) {
+      setActiveState(true);
     }
   });
 
+  document.addEventListener('mouseout', function (e) {
+    var target = e.target;
+    if (target.closest && target.closest(hoverTargets)) {
+      setActiveState(false);
+    }
+  });
+
+  // Handle focus events for keyboard navigation
+  document.addEventListener('focusin', function (e) {
+    if (e.target.closest && e.target.closest(hoverTargets)) {
+      setActiveState(true);
+    }
+  });
+
+  document.addEventListener('focusout', function (e) {
+    setActiveState(false);
+  });
+})();
   var samplers = [];
 
   function buildSampler(img) {
