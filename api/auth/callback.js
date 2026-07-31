@@ -42,45 +42,21 @@ export default async function handler(req, res) {
       `user=${encodeURIComponent(JSON.stringify(discordUser))}; Path=/; HttpOnly; SameSite=Lax`
     );
 
-    // ---- Dyna presence check (Option B) ----
+    // Moderators
     const MOD_IDS = [
       "1216256359280939111", // Dyna
-      "1415809741254426714" // You
+      "1415809741254426714"  // You
     ];
 
-
-    const dynaPresenceResponse = await fetch(
-      `https://discord.com/api/v10/users/${DYNA_ID}/profile`,
-      {
-        headers: {
-          Authorization: `Bot ${process.env.DYNA_BOT_TOKEN}`
-        }
-      }
-    );
-
-    const dynaProfile = await dynaPresenceResponse.json();
-
-    const isDynaOnline =
-      dynaProfile?.presence?.status === "online" ||
-      dynaProfile?.presence?.status === "idle" ||
-      dynaProfile?.presence?.status === "dnd";
-
-    // Store Dyna status in cookie
-    res.setHeader(
-      "Set-Cookie",
-      `dynaStatus=${isDynaOnline ? "online" : "offline"}; Path=/; SameSite=Lax`
-    );
-
-    // Redirect to moderator dashboard if the logged-in user *is* Dyna
+    // Redirect to moderator dashboard if authorized
     if (MOD_IDS.includes(discordUser.id)) {
       return res.redirect("/moderator");
     }
-
 
     // Otherwise redirect home
     res.redirect("/");
   } catch (err) {
     console.error("Callback crash:", err);
-    res.status(500).json({ error: "Internal Server Error" });
+    res.status(500).json({ error: "Internal Server Error", details: err.message });
   }
 }
