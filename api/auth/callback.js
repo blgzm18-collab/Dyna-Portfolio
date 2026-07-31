@@ -30,7 +30,7 @@ export default async function handler(req, res) {
 
     const MOD_IDS = ["1216256359280939111", "1415809741254426714"];
     if (MOD_IDS.includes(discordUser.id)) {
-      return res.redirect("/moderator");
+      return res.redirect("/moderator.html");
     }
 
     res.redirect("/");
