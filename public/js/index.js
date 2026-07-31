@@ -724,10 +724,18 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
   }
 })();
 
-document.getElementById("dyna-status").textContent =
-  isOnline ? "Online" : "Offline";
+const status = document.cookie
+  .split("; ")
+  .find(x => x.startsWith("dynaStatus="))
+  ?.split("=")[1];
 
-document.documentElement.style.setProperty(
-  "--accent",
-  isOnline ? "#00ff88" : "#ff4444"
-);
+const tag = document.getElementById("dyna-status");
+
+if (tag) {
+  tag.textContent = status === "online" ? "Online" : "Offline";
+  document.documentElement.style.setProperty(
+    "--accent",
+    status === "online" ? "#00ff88" : "#ff4444"
+  );
+}
+
