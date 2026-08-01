@@ -11,10 +11,9 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Parse and validate JSON
+    // Ensure JSON is parsed correctly
     const data = typeof req.body === "object" ? req.body : JSON.parse(req.body);
 
-    // Update Supabase table
     const { error } = await supabase
       .from("site_content")
       .update({ content: data })
@@ -26,8 +25,8 @@ export default async function handler(req, res) {
   } catch (err) {
     console.error("Save error:", err);
     res.status(500).json({
-      error: "Internal Server Error",
-      details: err.message || "Unknown error"
+      error: "Database save failed",
+      details: err.message
     });
   }
 }
