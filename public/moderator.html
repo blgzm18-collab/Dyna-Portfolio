@@ -154,19 +154,25 @@
     // Save JSON (requires your API route)
     function saveJSON() {
       const newData = document.getElementById("json-editor").value;
-
+    
       fetch("/api/save-json", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: newData
       })
-        .then(res => res.json())
-        .then(result => {
-          alert("JSON saved successfully!");
+        .then(async res => {
+          const text = await res.text();
+          try {
+            const json = JSON.parse(text);
+            alert(json.message || "Saved successfully!");
+          } catch {
+            console.error("Non-JSON response:", text);
+            alert("Server returned an error. Check console for details.");
+          }
         })
         .catch(err => {
-          alert("Error saving JSON.");
           console.error(err);
+          alert("Error saving JSON.");
         });
     }
   </script>
