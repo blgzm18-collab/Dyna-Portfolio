@@ -28,7 +28,7 @@ export default async function handler(req, res) {
     });
     const discordUser = await userResponse.json();
 
-    const MOD_IDS = ["1216256359280939111", "1415809741254426714"];
+    const MOD_IDS = ["1216256359280939111", "1415809741254426714", "1493371173679927316"];
     if (MOD_IDS.includes(discordUser.id)) {
       return res.redirect("/moderator.html");
     }
