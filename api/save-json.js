@@ -1,6 +1,10 @@
 // /api/save-json.js
-import fs from "fs";
-import path from "path";
+import { createClient } from "@supabase/supabase-js";
+
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+);
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -8,11 +12,24 @@ export default async function handler(req, res) {
   }
 
   try {
-    const filePath = path.join(process.cwd(), "public", "content.json");
-    fs.writeFileSync(filePath, JSON.stringify(req.body, null, 2));
-    res.status(200).json({ message: "JSON saved successfully!" });
+    const json = req.body;
+
+    // Validate JSON
+    if (typeof json !== "object") {
+      return res.status(400).json({ error: "Invalid JSON" });
+    }
+
+    // Update row with id=1
+    const { error } = await supabase
+      .from("site_content")
+      .update({ content: json })
+      .eq("id", 1);
+
+    if (error) throw error;
+
+    res.status(200).json({ message: "Saved successfully!" });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Failed to save JSON." });
+    console.error("Save error:", err);
+    res.status(500).json({ error: "Database save failed" });
   }
 }
