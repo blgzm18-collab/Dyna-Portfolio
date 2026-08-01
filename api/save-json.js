@@ -1,4 +1,3 @@
-// /api/save-json.js
 import { createClient } from "@supabase/supabase-js";
 
 const supabase = createClient(
@@ -12,17 +11,13 @@ export default async function handler(req, res) {
   }
 
   try {
-    const json = req.body;
+    // Parse and validate JSON
+    const data = typeof req.body === "object" ? req.body : JSON.parse(req.body);
 
-    // Validate JSON
-    if (typeof json !== "object") {
-      return res.status(400).json({ error: "Invalid JSON" });
-    }
-
-    // Update row with id=1
+    // Update Supabase table
     const { error } = await supabase
       .from("site_content")
-      .update({ content: json })
+      .update({ content: data })
       .eq("id", 1);
 
     if (error) throw error;
@@ -30,6 +25,9 @@ export default async function handler(req, res) {
     res.status(200).json({ message: "Saved successfully!" });
   } catch (err) {
     console.error("Save error:", err);
-    res.status(500).json({ error: "Database save failed" });
+    res.status(500).json({
+      error: "Internal Server Error",
+      details: err.message || "Unknown error"
+    });
   }
 }
