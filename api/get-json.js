@@ -1,4 +1,3 @@
-// /api/get-json.js
 import { createClient } from "@supabase/supabase-js";
 
 const supabase = createClient(
@@ -19,6 +18,9 @@ export default async function handler(req, res) {
     res.status(200).json(data);
   } catch (err) {
     console.error("Load error:", err);
-    res.status(500).json({ error: "Failed to load JSON" });
+    res.status(500).json({
+      error: "Failed to load JSON",
+      details: err.message
+    });
   }
 }
