@@ -1,6 +1,6 @@
 fetch("/api/get-json")
-  .then(res => res.json())
-  .then(data => {
+  .then(res => res.text()) // temporarily use .text()
+  .then(console.log);
     document.getElementById("json-editor").value =
       JSON.stringify(data.content, null, 2);
   });
