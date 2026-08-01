@@ -11,7 +11,6 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Ensure JSON is parsed correctly
     const data = typeof req.body === "object" ? req.body : JSON.parse(req.body);
 
     const { error } = await supabase
@@ -19,14 +18,17 @@ export default async function handler(req, res) {
       .update({ content: data })
       .eq("id", 1);
 
-    if (error) throw error;
+    if (error) {
+      console.error("Supabase error:", error);
+      throw error;
+    }
 
     res.status(200).json({ message: "Saved successfully!" });
   } catch (err) {
     console.error("Save error:", err);
     res.status(500).json({
-      error: "Database save failed",
-      details: err.message
+      error: "Internal Server Error",
+      details: err.message || err
     });
   }
 }
