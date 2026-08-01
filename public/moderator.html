@@ -155,7 +155,7 @@
     function saveJSON() {
       const newData = document.getElementById("json-editor").value;
 
-      fetch("/api/save.json", {
+      fetch("/api/save-json", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: newData
