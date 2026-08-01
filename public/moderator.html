@@ -164,10 +164,10 @@
           const text = await res.text();
           try {
             const json = JSON.parse(text);
-            alert(json.message || "Saved successfully!");
+            alert(json.message || json.error || "Saved!");
           } catch {
             console.error("Non-JSON response:", text);
-            alert("Server returned an error. Check console for details.");
+            alert("Server returned invalid JSON.");
           }
         })
         .catch(err => {
@@ -175,6 +175,7 @@
           alert("Error saving JSON.");
         });
     }
+
   </script>
 </body>
 </html>
