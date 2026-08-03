@@ -758,6 +758,21 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
     }
   });
 
+  async function loadBio() {
+      const { data, error } = await supabase
+          .from("dynexed_site")
+          .select("bio")
+          .eq("id", 1)
+          .single();
+  
+      if (!error) {
+          document.getElementById("dyna-bio").innerText = data.bio;
+      }
+  }
+  
+  loadBio();
+
+  
   /* Add Message to Chat — built with safe DOM methods instead of
      innerHTML, so a message containing "<" or "&" etc. can't break
      rendering or inject markup */
