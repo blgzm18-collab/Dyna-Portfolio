@@ -1,18 +1,14 @@
 {
-  "name": "dyna-portfolio",
+  "name": "dyna-bot",
   "version": "1.0.0",
-  "description": "Dynamexed 3D Asset Artist Portfolio",
+  "main": "bot/index.js",
   "type": "module",
   "scripts": {
-    "build": "echo 'No build step needed for Vercel' && exit 0"
     "start": "node bot/index.js"
   },
   "dependencies": {
-    "resend": "^3.0.0"
-  },
-  "devDependencies": {},
-  "engines": {
-    "node": "20.x"
+    "discord.js": "^14.15.0",
+    "@supabase/supabase-js": "^2.39.0",
+    "dotenv": "^16.4.0"
   }
-
 }
