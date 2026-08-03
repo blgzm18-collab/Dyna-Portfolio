@@ -5,177 +5,1237 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dynamexed Moderator Dashboard</title>
 
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Rajdhani:wght@600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
   <style>
+    /* ============ TOKENS ============ */
+    :root {
+      --bg: #0a0a0a;
+      --surface: #141414;
+      --surface-2: #1c1c1c;
+      --line: #2c2c2c;
+      --text: #f2f2f2;
+      --text-dim: #8a8a8a;
+      --accent: #c31a28;
+      --accent-dim: #5c0d15;
+      --ok: #2eaf5f;
+      --warn: #d99a1c;
+
+      --display: 'Rajdhani', sans-serif;
+      --mono: 'JetBrains Mono', monospace;
+      --body: 'Inter', sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html {
+      scroll-behavior: smooth;
+      scrollbar-width: thin;
+      scrollbar-color: var(--accent-dim) var(--bg);
+    }
+
+    ::-webkit-scrollbar { width: 11px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--accent-dim); border-radius: 8px; border: 2.5px solid var(--bg); }
+    ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
     body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #0f0f0f;
-      color: #fff;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--body);
+      line-height: 1.6;
+      background-image:
+        linear-gradient(var(--line) 1px, transparent 1px),
+        linear-gradient(90deg, var(--line) 1px, transparent 1px);
+      background-size: 48px 48px;
+      background-position: center top;
+      background-attachment: fixed;
     }
 
-    header {
-      background: #181818;
-      padding: 20px;
+    ::selection { background: var(--accent); color: var(--bg); }
+
+    button, input, textarea, select { font-family: inherit; }
+
+    /* ============ LAYOUT ============ */
+    .dashboard {
+      display: grid;
+      grid-template-columns: 280px 1fr 340px;
+      min-height: 100vh;
+    }
+
+    /* ============ SIDEBAR ============ */
+    .sidebar {
+      background: var(--surface);
+      border-right: 1px solid var(--line);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .sidebar-header { padding: 20px; border-bottom: 1px solid var(--line); flex-shrink: 0; }
+
+    .sidebar-header h2 {
+      font-family: var(--display);
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+
+    .sidebar-search input {
+      width: 100%;
+      background: var(--surface-2);
+      border: 1px solid var(--line);
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      transition: border-color 160ms ease;
+    }
+
+    .sidebar-search input:focus { outline: none; border-color: var(--accent); }
+    .sidebar-search input::placeholder { color: var(--text-dim); }
+
+    .sidebar-tabs {
+      display: flex;
+      border-bottom: 1px solid var(--line);
+      padding: 0 20px;
+      margin-top: 14px;
+    }
+
+    .sidebar-tabs button {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: var(--text-dim);
+      padding: 12px 0;
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: color 160ms ease, border-color 160ms ease;
+    }
+
+    .sidebar-tabs button:hover { color: var(--text); }
+    .sidebar-tabs button.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+    .sidebar-content { flex: 1; overflow-y: auto; display: none; }
+    .sidebar-content.active { display: flex; flex-direction: column; }
+
+    /* DMs */
+    .dm-list { display: flex; flex-direction: column; padding: 12px; gap: 6px; }
+
+    .dm-item {
+      padding: 12px;
+      background: var(--surface-2);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: border-color 160ms ease, background 160ms ease;
+      position: relative;
+    }
+
+    .dm-item:hover, .dm-item.active { border-color: var(--accent); background: var(--surface); }
+
+    .dm-name { font-family: var(--mono); font-size: 0.82rem; color: var(--text); font-weight: 500; margin-bottom: 4px; }
+    .dm-preview { font-size: 0.78rem; color: var(--text-dim); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .dm-unread { position: absolute; top: 10px; right: 10px; width: 8px; height: 8px; background: var(--accent); border-radius: 50%; }
+
+    .empty-state {
+      padding: 40px 20px;
       text-align: center;
-      border-bottom: 2px solid #333;
+      color: var(--text-dim);
+      font-size: 0.85rem;
     }
 
-    h1 {
-      margin: 0;
-      font-size: 28px;
-      letter-spacing: 1px;
+    .empty-state .hud-tag { justify-content: center; margin-bottom: 10px; }
+
+    /* Tools */
+    .tools-list { display: flex; flex-direction: column; padding: 12px; gap: 8px; }
+
+    .tool-btn {
+      padding: 12px;
+      background: var(--surface-2);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      color: var(--text);
+      cursor: pointer;
+      font-family: var(--mono);
+      font-size: 0.82rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      transition: border-color 160ms ease, background 160ms ease;
+      text-align: left;
     }
 
-    .container {
-      max-width: 1100px;
-      margin: 40px auto;
-      padding: 20px;
+    .tool-btn:hover, .tool-btn.active { border-color: var(--accent); background: var(--surface); }
+
+    .tool-btn-desc {
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      display: block;
+      margin-top: 4px;
+      font-weight: normal;
+      text-transform: none;
+      letter-spacing: normal;
     }
+
+    /* ============ MAIN ============ */
+    .main-content { display: flex; flex-direction: column; padding: 40px; overflow-y: auto; }
+
+    .main-header { margin-bottom: 36px; display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; flex-wrap: wrap; }
+
+    .main-header h1 { font-family: var(--display); font-size: 2.2rem; font-weight: 700; letter-spacing: 0.02em; text-transform: uppercase; margin-bottom: 6px; }
+
+    .hud-tag {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--accent);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .hud-tag::before { content: ''; width: 6px; height: 6px; background: var(--accent); border-radius: 1px; flex-shrink: 0; }
+
+    .view { display: none; }
+    .view.active { display: block; }
 
     .card {
-      background: #1c1c1c;
-      padding: 20px;
-      border-radius: 10px;
-      margin-bottom: 25px;
-      border: 1px solid #333;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 28px;
+      margin-bottom: 24px;
     }
 
     .card h2 {
-      margin-top: 0;
-      font-size: 22px;
-      border-bottom: 1px solid #333;
-      padding-bottom: 10px;
+      font-family: var(--display);
+      font-size: 1.3rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 18px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
 
-    .btn {
-      display: inline-block;
-      padding: 10px 16px;
-      background: #007bff;
-      color: #fff;
-      border-radius: 6px;
-      text-decoration: none;
-      margin-top: 10px;
-      transition: 0.2s;
+    .card p { color: var(--text-dim); margin-bottom: 16px; }
+
+    /* User identity (OAuth2) */
+    .identity-row { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; }
+
+    .identity-avatar {
+      width: 56px; height: 56px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: var(--surface-2);
+      object-fit: cover;
+      flex-shrink: 0;
     }
 
-    .btn:hover {
-      background: #005fcc;
-    }
+    .identity-name { font-family: var(--display); font-size: 1.3rem; font-weight: 700; }
+    .identity-id { font-family: var(--mono); font-size: 0.78rem; color: var(--text-dim); margin-top: 2px; }
 
+    .user-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    .info-field { display: flex; flex-direction: column; gap: 6px; }
+    .info-label { font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); }
+    .info-value { font-size: 0.95rem; color: var(--text); }
+
+    /* Editor */
     textarea {
       width: 100%;
-      height: 200px;
-      background: #111;
-      color: #fff;
-      border: 1px solid #333;
-      border-radius: 6px;
-      padding: 10px;
-      font-size: 14px;
+      height: 280px;
+      background: var(--surface-2);
+      color: var(--text);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 16px;
+      font-family: var(--mono);
+      font-size: 0.9rem;
+      line-height: 1.5;
+      resize: vertical;
+      transition: border-color 160ms ease;
     }
 
-    .save-btn {
-      background: #28a745;
+    textarea:focus, input:focus, select:focus { outline: none; border-color: var(--accent); }
+
+    input[type="text"], input[type="search"], select {
+      width: 100%;
+      background: var(--surface-2);
+      color: var(--text);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 0.9rem;
+      transition: border-color 160ms ease;
     }
 
-    .save-btn:hover {
-      background: #1e7e34;
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 22px;
+      background: var(--accent);
+      color: var(--text);
+      border: none;
+      border-radius: 8px;
+      font-family: var(--mono);
+      font-size: 0.82rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 160ms ease, transform 160ms ease, opacity 160ms ease;
     }
 
-    footer {
-      text-align: center;
-      padding: 20px;
-      color: #777;
-      margin-top: 40px;
+    .btn:hover { background: #a01621; transform: translateY(-2px); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    .btn-ghost { background: transparent; border: 1px solid var(--line); color: var(--text); }
+    .btn-ghost:hover { border-color: var(--accent); color: var(--accent); background: transparent; }
+
+    .btn-sm { padding: 8px 14px; font-size: 0.72rem; }
+    .btn-danger { background: var(--accent-dim); border: 1px solid var(--accent); }
+    .btn-danger:hover { background: var(--accent); }
+
+    .btn-group { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px; }
+
+    /* Status / feedback */
+    .status-badge { display: inline-block; width: 8px; height: 8px; background: var(--accent); border-radius: 50%; margin-right: 6px; }
+    .status-online { background: var(--ok); }
+    .status-idle { background: var(--warn); }
+
+    .banner {
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      margin-bottom: 16px;
+      border: 1px solid var(--line);
+      display: none;
+    }
+    .banner.show { display: block; }
+    .banner.success { border-color: var(--ok); color: var(--ok); background: rgba(46,175,95,0.08); }
+    .banner.error { border-color: var(--accent); color: #ff6b6b; background: rgba(195,26,40,0.08); }
+    .banner.loading { border-color: var(--line); color: var(--text-dim); }
+
+    .spinner {
+      width: 14px; height: 14px;
+      border: 2px solid var(--text-dim);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      display: inline-block;
+      animation: spin 700ms linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Lookup result */
+    .lookup-result {
+      display: none;
+      margin-top: 20px;
+      border-top: 1px solid var(--line);
+      padding-top: 20px;
+    }
+    .lookup-result.show { display: block; }
+
+    /* Analytics */
+    .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+    .stat-card { background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; padding: 18px; }
+    .stat-value { font-family: var(--display); font-size: 1.8rem; font-weight: 700; }
+    .stat-label { font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-dim); margin-top: 4px; }
+
+    .bar-chart { display: flex; align-items: flex-end; gap: 10px; height: 160px; padding: 10px 0; }
+    .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px; height: 100%; justify-content: flex-end; }
+    .bar { width: 100%; background: var(--accent); border-radius: 4px 4px 0 0; min-height: 2px; transition: height 400ms ease; }
+    .bar-label { font-family: var(--mono); font-size: 0.65rem; color: var(--text-dim); }
+
+    /* Queue */
+    .queue-item {
+      background: var(--surface-2);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .queue-info { flex: 1; min-width: 200px; }
+    .queue-user { font-family: var(--mono); font-size: 0.85rem; }
+    .queue-reason { font-size: 0.82rem; color: var(--text-dim); margin-top: 4px; }
+    .queue-meta { font-size: 0.72rem; color: var(--text-dim); margin-top: 6px; font-family: var(--mono); }
+
+    /* Settings */
+    .toggle-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .toggle-row:last-child { border-bottom: none; }
+    .toggle-label { font-size: 0.92rem; }
+    .toggle-desc { font-size: 0.78rem; color: var(--text-dim); margin-top: 2px; }
+
+    .switch { position: relative; width: 44px; height: 24px; flex-shrink: 0; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .switch-track {
+      position: absolute; cursor: pointer; inset: 0;
+      background: var(--surface-2);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      transition: background 160ms ease;
+    }
+    .switch-track::before {
+      content: '';
+      position: absolute;
+      width: 16px; height: 16px;
+      left: 3px; bottom: 3px;
+      background: var(--text-dim);
+      border-radius: 50%;
+      transition: transform 160ms ease, background 160ms ease;
+    }
+    .switch input:checked + .switch-track { background: var(--accent-dim); border-color: var(--accent); }
+    .switch input:checked + .switch-track::before { transform: translateX(20px); background: var(--accent); }
+
+    /* ============ CHAT PANEL ============ */
+    .chat-panel { background: var(--surface); border-left: 1px solid var(--line); display: flex; flex-direction: column; overflow: hidden; }
+    .chat-header { padding: 20px; border-bottom: 1px solid var(--line); flex-shrink: 0; }
+    .chat-header h3 { font-family: var(--display); font-size: 1.05rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; margin-bottom: 6px; }
+    .chat-header p { font-size: 0.78rem; color: var(--text-dim); }
+
+    .chat-messages { flex: 1; padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; min-height: 0; }
+
+    .chat-empty { flex: 1; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 10px; color: var(--text-dim); font-size: 0.85rem; padding: 20px; text-align: center; }
+
+    .message { padding: 10px 12px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; font-size: 0.88rem; line-height: 1.4; word-wrap: break-word; }
+    .message.support { background: var(--accent-dim); border-color: var(--accent); }
+    .message-label { font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); margin-bottom: 4px; display: block; }
+
+    .chat-input-wrapper { padding: 16px; border-top: 1px solid var(--line); flex-shrink: 0; display: flex; gap: 10px; }
+    #chatInput { flex: 1; background: var(--surface-2); border: 1px solid var(--line); color: var(--text); padding: 10px 12px; border-radius: 8px; font-size: 0.88rem; resize: none; max-height: 60px; }
+    #sendBtn { background: var(--accent); border: none; color: var(--text); padding: 10px 14px; border-radius: 8px; cursor: pointer; font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 600; transition: background 160ms ease; flex-shrink: 0; }
+    #sendBtn:hover { background: #a01621; }
+    #sendBtn:disabled { opacity: 0.4; cursor: not-allowed; }
+    #chatInput:disabled { opacity: 0.4; }
+
+    /* ============ RESPONSIVE ============ */
+    @media (max-width: 1400px) {
+      .dashboard { grid-template-columns: 240px 1fr 300px; }
+      .main-content { padding: 28px; }
+      .stat-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 1200px) {
+      .dashboard { grid-template-columns: 220px 1fr; }
+      .chat-panel { display: none; }
+    }
+
+    @media (max-width: 768px) {
+      .dashboard { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+      .main-content { padding: 20px; }
+      .main-header h1 { font-size: 1.6rem; }
+      .card { padding: 18px; }
+      textarea { height: 200px; }
+      .user-info-grid { grid-template-columns: 1fr; }
+      .stat-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
     }
   </style>
 </head>
 
 <body>
-  <header>
-    <h1>DynaMexed Moderator Dashboard</h1>
-  </header>
+  <div class="dashboard">
 
-  <div class="container">
+    <!-- ============ SIDEBAR ============ -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h2>Moderator Panel</h2>
+        <div class="sidebar-search">
+          <input type="search" id="searchDM" placeholder="Search DMs..." />
+        </div>
+        <div class="sidebar-tabs">
+          <button class="active" data-tab="dms">DMs</button>
+          <button data-tab="tools">Tools</button>
+        </div>
+      </div>
 
-    <!-- User Info -->
-    <div class="card">
-      <h2>Logged-in User</h2>
-      <p id="user-info">Loading user data...</p>
-    </div>
+      <!-- DMs Tab -->
+      <div class="sidebar-content active" id="dms-tab">
+        <div class="dm-list" id="dmList">
+          <!-- Populated by loadConversations() once a real DM source is connected -->
+        </div>
+      </div>
 
-    <!-- JSON Editor -->
-    <div class="card">
-      <h2>Site Content Editor</h2>
-      <p>Edit your site’s JSON content below:</p>
-      <textarea id="json-editor"></textarea>
-      <br />
-      <a class="btn save-btn" onclick="saveJSON()">Save Changes</a>
-    </div>
+      <!-- Tools Tab -->
+      <div class="sidebar-content" id="tools-tab">
+        <div class="tools-list">
+          <button class="tool-btn" data-view="lookup">
+            User Lookup
+            <span class="tool-btn-desc">Find &amp; manage users</span>
+          </button>
+          <button class="tool-btn" data-view="analytics">
+            Analytics
+            <span class="tool-btn-desc">Live dashboard stats</span>
+          </button>
+          <button class="tool-btn" data-view="queue">
+            Moderation Queue
+            <span class="tool-btn-desc">Pending reports</span>
+          </button>
+          <button class="tool-btn" data-view="broadcast">
+            Broadcast
+            <span class="tool-btn-desc">Send announcements</span>
+          </button>
+          <button class="tool-btn" data-view="settings">
+            Settings
+            <span class="tool-btn-desc">Config &amp; preferences</span>
+          </button>
+        </div>
+      </div>
+    </aside>
 
-    <!-- Tools -->
-    <div class="card">
-      <h2>Moderator Tools</h2>
-      <a class="btn" href="/">Return to Homepage</a>
-      <a class="btn" href="/logout">Logout</a>
-    </div>
+    <!-- ============ MAIN CONTENT ============ -->
+    <main class="main-content">
+
+      <!-- ===== DASHBOARD VIEW ===== -->
+      <section class="view active" id="view-dashboard">
+        <div class="main-header">
+          <div>
+            <div class="hud-tag">System Status</div>
+            <h1>Dashboard</h1>
+          </div>
+        </div>
+
+        <!-- Identity card, populated from Discord OAuth2 cookie set by callback.js -->
+        <div class="card">
+          <h2>Logged-in User</h2>
+          <div class="identity-row">
+            <img id="user-avatar" class="identity-avatar" src="" alt="" />
+            <div>
+              <div class="identity-name" id="user-name">Loading…</div>
+              <div class="identity-id" id="user-id"></div>
+            </div>
+          </div>
+          <div class="user-info-grid">
+            <div class="info-field">
+              <span class="info-label">Status</span>
+              <span class="info-value"><span class="status-badge status-online"></span>Online</span>
+            </div>
+            <div class="info-field">
+              <span class="info-label">Session</span>
+              <span class="info-value" id="user-session">Discord OAuth2</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Site Content Editor</h2>
+          <p>Edit your site's JSON configuration below. Saved via <code>/api/mod/content</code>.</p>
+          <div id="editor-banner" class="banner"></div>
+          <textarea id="json-editor" placeholder='{"site": "config"}'>{"site": "Dynamexed", "version": "2.1.0", "theme": "dark-red"}</textarea>
+          <div class="btn-group">
+            <button class="btn" id="saveJsonBtn">Save Changes</button>
+            <button class="btn btn-ghost" id="resetJsonBtn">Reset</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Quick Actions</h2>
+          <div class="btn-group">
+            <a class="btn btn-ghost" href="/">Return Home</a>
+            <a class="btn btn-ghost" href="/logout">Logout</a>
+            <a class="btn btn-ghost" href="/docs">Documentation</a>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== USER LOOKUP VIEW ===== -->
+      <section class="view" id="view-lookup">
+        <div class="main-header">
+          <div>
+            <div class="hud-tag">Tool</div>
+            <h1>User Lookup</h1>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Find a user</h2>
+          <p>Search by Discord ID or username. Queries <code>GET /api/mod/user-lookup?query=</code>.</p>
+          <div class="btn-group" style="margin-top:0; align-items:stretch;">
+            <input type="text" id="lookupInput" placeholder="Discord ID or username" style="flex:1;" />
+            <button class="btn" id="lookupBtn">Search</button>
+          </div>
+          <div id="lookup-banner" class="banner"></div>
+
+          <div class="lookup-result" id="lookupResult">
+            <div class="identity-row">
+              <img id="lookup-avatar" class="identity-avatar" src="" alt="" />
+              <div>
+                <div class="identity-name" id="lookup-name">—</div>
+                <div class="identity-id" id="lookup-id">—</div>
+              </div>
+            </div>
+            <div class="user-info-grid" style="margin-bottom:20px;">
+              <div class="info-field">
+                <span class="info-label">Joined</span>
+                <span class="info-value" id="lookup-joined">—</span>
+              </div>
+              <div class="info-field">
+                <span class="info-label">Warnings</span>
+                <span class="info-value" id="lookup-warnings">—</span>
+              </div>
+            </div>
+            <div class="btn-group" style="margin-top:0;">
+              <button class="btn btn-sm btn-ghost" data-action="warn">Warn</button>
+              <button class="btn btn-sm btn-ghost" data-action="kick">Kick</button>
+              <button class="btn btn-sm btn-danger" data-action="ban">Ban</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== ANALYTICS VIEW ===== -->
+      <section class="view" id="view-analytics">
+        <div class="main-header">
+          <div>
+            <div class="hud-tag">Tool</div>
+            <h1>Analytics</h1>
+          </div>
+          <button class="btn btn-ghost btn-sm" id="refreshAnalyticsBtn">Refresh</button>
+        </div>
+
+        <div class="card">
+          <h2>Overview</h2>
+          <p>Pulled from <code>GET /api/mod/analytics</code>.</p>
+          <div id="analytics-banner" class="banner"></div>
+
+          <div class="stat-grid" id="statGrid">
+            <div class="stat-card"><div class="stat-value">—</div><div class="stat-label">Total Users</div></div>
+            <div class="stat-card"><div class="stat-value">—</div><div class="stat-label">Active Today</div></div>
+            <div class="stat-card"><div class="stat-value">—</div><div class="stat-label">Messages Sent</div></div>
+            <div class="stat-card"><div class="stat-value">—</div><div class="stat-label">Open Reports</div></div>
+          </div>
+
+          <div class="bar-chart" id="barChart"></div>
+        </div>
+      </section>
+
+      <!-- ===== MODERATION QUEUE VIEW ===== -->
+      <section class="view" id="view-queue">
+        <div class="main-header">
+          <div>
+            <div class="hud-tag">Tool</div>
+            <h1>Moderation Queue</h1>
+          </div>
+          <button class="btn btn-ghost btn-sm" id="refreshQueueBtn">Refresh</button>
+        </div>
+
+        <div class="card">
+          <h2>Pending Reports</h2>
+          <p>Loaded from <code>GET /api/mod/queue</code>. Actions post to <code>/api/mod/queue/:id/resolve</code>.</p>
+          <div id="queue-banner" class="banner"></div>
+          <div id="queueList"></div>
+        </div>
+      </section>
+
+      <!-- ===== BROADCAST VIEW ===== -->
+      <section class="view" id="view-broadcast">
+        <div class="main-header">
+          <div>
+            <div class="hud-tag">Tool</div>
+            <h1>Broadcast</h1>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Send an announcement</h2>
+          <p>Posts to <code>POST /api/mod/broadcast</code>.</p>
+          <div id="broadcast-banner" class="banner"></div>
+
+          <div class="info-field" style="margin-bottom:14px;">
+            <span class="info-label">Channel</span>
+            <select id="broadcastChannel">
+              <option value="announcements">#announcements</option>
+              <option value="general">#general</option>
+              <option value="support">#support</option>
+            </select>
+          </div>
+
+          <div class="info-field" style="margin-bottom:14px;">
+            <span class="info-label">Title</span>
+            <input type="text" id="broadcastTitle" placeholder="Announcement title" />
+          </div>
+
+          <div class="info-field">
+            <span class="info-label">Message</span>
+            <textarea id="broadcastMessage" style="height:140px;" placeholder="Write your announcement…"></textarea>
+          </div>
+
+          <div class="btn-group">
+            <button class="btn" id="sendBroadcastBtn">Send Broadcast</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== SETTINGS VIEW ===== -->
+      <section class="view" id="view-settings">
+        <div class="main-header">
+          <div>
+            <div class="hud-tag">Tool</div>
+            <h1>Settings</h1>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Site configuration</h2>
+          <p>Synced with <code>GET/POST /api/mod/settings</code>.</p>
+          <div id="settings-banner" class="banner"></div>
+
+          <div class="toggle-row">
+            <div>
+              <div class="toggle-label">Maintenance mode</div>
+              <div class="toggle-desc">Take the public site offline for visitors</div>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="toggle-maintenance" />
+              <span class="switch-track"></span>
+            </label>
+          </div>
+
+          <div class="toggle-row">
+            <div>
+              <div class="toggle-label">Registration open</div>
+              <div class="toggle-desc">Allow new members to register</div>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="toggle-registration" checked />
+              <span class="switch-track"></span>
+            </label>
+          </div>
+
+          <div class="toggle-row">
+            <div>
+              <div class="toggle-label">Support chat enabled</div>
+              <div class="toggle-desc">Show the live chat widget site-wide</div>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="toggle-chat" checked />
+              <span class="switch-track"></span>
+            </label>
+          </div>
+
+          <div class="btn-group">
+            <button class="btn" id="saveSettingsBtn">Save Settings</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- ============ CHAT PANEL ============ -->
+    <aside class="chat-panel">
+      <div class="chat-header">
+        <h3>Support Chat</h3>
+        <p id="chat-user">No conversation selected</p>
+      </div>
+
+      <div class="chat-messages" id="chatMessages">
+        <div class="chat-empty">
+          <div class="hud-tag">Standing by</div>
+          <div>Select a DM from the sidebar to start chatting.</div>
+        </div>
+      </div>
+
+      <div class="chat-input-wrapper">
+        <input type="text" id="chatInput" placeholder="Select a conversation first…" disabled />
+        <button id="sendBtn" disabled>Send</button>
+      </div>
+    </aside>
 
   </div>
 
-  <footer>
-    DynaMexed © 2026 — Moderator Panel
-  </footer>
-
   <script>
-    // Load user cookie
+    /* =========================================================
+       CONFIG — adjust to match your deployed API routes
+    ========================================================= */
+    const API = {
+      content: "/api/mod/content",
+      userLookup: "/api/mod/user-lookup",
+      analytics: "/api/mod/analytics",
+      queue: "/api/mod/queue",
+      broadcast: "/api/mod/broadcast",
+      settings: "/api/mod/settings",
+      conversations: "/api/mod/conversations",
+      sendMessage: "/api/mod/conversations" // + /:id/messages
+    };
+
+    let activeDmId = null;
+
+    /* =========================================================
+       OAUTH2 IDENTITY — reads the cookie set by callback.js
+       Cookie shape: { id, username, global_name, avatar }
+    ========================================================= */
     function getCookie(name) {
       const value = `; ${document.cookie}`;
       const parts = value.split(`; ${name}=`);
       if (parts.length === 2) return decodeURIComponent(parts.pop().split(";").shift());
     }
 
-    // Display user info
-    const userData = getCookie("user");
-    if (userData) {
-      const user = JSON.parse(userData);
-      document.getElementById("user-info").innerHTML =
-        `<strong>${user.username}</strong> (ID: ${user.id})`;
-    } else {
-      document.getElementById("user-info").innerHTML =
-        "No user data found — you may not be logged in.";
+    function renderIdentity() {
+      const raw = getCookie("user");
+      const nameEl = document.getElementById("user-name");
+      const idEl = document.getElementById("user-id");
+      const avatarEl = document.getElementById("user-avatar");
+
+      if (!raw) {
+        nameEl.textContent = "Not signed in";
+        idEl.textContent = "Sign in with Discord to continue";
+        avatarEl.src = "https://cdn.discordapp.com/embed/avatars/0.png";
+        return;
+      }
+
+      try {
+        const user = JSON.parse(raw);
+        const displayName = user.global_name || user.username || "Unknown";
+        nameEl.textContent = displayName;
+        idEl.textContent = user.id ? `ID · ${user.id}` : "";
+        avatarEl.src = user.avatar && user.id
+          ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`
+          : "https://cdn.discordapp.com/embed/avatars/0.png";
+        avatarEl.alt = displayName;
+      } catch (e) {
+        console.error("Failed to parse user cookie:", e);
+        nameEl.textContent = "Session error";
+      }
     }
 
-    // Load JSON file
-    fetch("/content.json")
-      .then(res => res.json())
-      .then(data => {
-        document.getElementById("json-editor").value = JSON.stringify(data, null, 2);
+    /* =========================================================
+       BANNER HELPER
+    ========================================================= */
+    function setBanner(el, type, html) {
+      el.className = "banner show " + type;
+      el.innerHTML = html;
+    }
+    function clearBanner(el) {
+      el.className = "banner";
+      el.innerHTML = "";
+    }
+
+    /* =========================================================
+       VIEW SWITCHING
+    ========================================================= */
+    function switchView(view) {
+      document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
+      const target = document.getElementById(`view-${view}`);
+      if (target) target.classList.add("active");
+
+      document.querySelectorAll(".tool-btn").forEach(b => b.classList.remove("active"));
+      const btn = document.querySelector(`.tool-btn[data-view="${view}"]`);
+      if (btn) btn.classList.add("active");
+
+      if (view === "analytics") loadAnalytics();
+      if (view === "queue") loadQueue();
+      if (view === "settings") loadSettings();
+    }
+
+    document.querySelectorAll(".tool-btn").forEach(btn => {
+      btn.addEventListener("click", () => switchView(btn.dataset.view));
+    });
+
+    document.querySelectorAll(".sidebar-tabs button").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".sidebar-tabs button").forEach(b => b.classList.remove("active"));
+        document.querySelectorAll(".sidebar-content").forEach(c => c.classList.remove("active"));
+        btn.classList.add("active");
+        document.getElementById(btn.dataset.tab + "-tab").classList.add("active");
       });
+    });
 
-    // Save JSON (requires your API route)
-    function saveJSON() {
-      const newData = document.getElementById("json-editor").value;
-    
-      fetch("/api/save-json", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: newData
-      })
-        .then(async res => {
-          const text = await res.text();
-          try {
-            const json = JSON.parse(text);
-            alert(json.message || json.error || "Saved!");
-          } catch {
-            console.error("Non-JSON response:", text);
-            alert("Server returned invalid JSON.");
-          }
-        })
-        .catch(err => {
-          console.error(err);
-          alert("Error saving JSON.");
-        });
+    /* =========================================================
+       DMs — starts empty, wire up loadConversations() to a
+       real endpoint (e.g. API.conversations) when ready
+    ========================================================= */
+    function renderDmList(conversations) {
+      const list = document.getElementById("dmList");
+      list.innerHTML = "";
+
+      if (!conversations || conversations.length === 0) {
+        list.innerHTML = `
+          <div class="empty-state">
+            <div class="hud-tag">No conversations</div>
+            <div>DMs will appear here once connected to a live source.</div>
+          </div>`;
+        return;
+      }
+
+      conversations.forEach(convo => {
+        const item = document.createElement("div");
+        item.className = "dm-item";
+        item.dataset.dm = convo.id;
+        item.innerHTML = `
+          ${convo.unread ? '<span class="dm-unread"></span>' : ""}
+          <div class="dm-name">${convo.name}</div>
+          <div class="dm-preview">${convo.preview || ""}</div>
+        `;
+        item.addEventListener("click", () => openConversation(convo));
+        list.appendChild(item);
+      });
     }
 
+    async function loadConversations() {
+      // No live source connected yet — leave sidebar empty until wired up.
+      // Example of how this will work once ready:
+      // const res = await fetch(API.conversations);
+      // const data = await res.json();
+      // renderDmList(data.conversations);
+      renderDmList([]);
+    }
+
+    function openConversation(convo) {
+      activeDmId = convo.id;
+      document.querySelectorAll(".dm-item").forEach(i => i.classList.toggle("active", i.dataset.dm === convo.id));
+      document.getElementById("chat-user").textContent = `with ${convo.name}`;
+
+      const input = document.getElementById("chatInput");
+      const sendBtn = document.getElementById("sendBtn");
+      input.disabled = false;
+      sendBtn.disabled = false;
+      input.placeholder = "Type a message...";
+
+      document.getElementById("chatMessages").innerHTML =
+        `<div class="chat-empty"><div class="hud-tag">Loading</div><div>Fetching message history…</div></div>`;
+
+      // Wire this to a real endpoint, e.g. `${API.conversations}/${convo.id}/messages`
+    }
+
+    async function sendMessage() {
+      const input = document.getElementById("chatInput");
+      const message = input.value.trim();
+      if (!message || !activeDmId) return;
+
+      const chatMessages = document.getElementById("chatMessages");
+      const emptyState = chatMessages.querySelector(".chat-empty");
+      if (emptyState) emptyState.remove();
+
+      const msgEl = document.createElement("div");
+      msgEl.className = "message support";
+      msgEl.innerHTML = `<span class="message-label">You</span>${escapeHtml(message)}`;
+      chatMessages.appendChild(msgEl);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+      input.value = "";
+
+      try {
+        await fetch(`${API.sendMessage}/${activeDmId}/messages`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message })
+        });
+      } catch (e) {
+        console.error("Send failed:", e);
+      }
+    }
+
+    document.getElementById("sendBtn").addEventListener("click", sendMessage);
+    document.getElementById("chatInput").addEventListener("keypress", e => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+
+    function escapeHtml(str) {
+      const div = document.createElement("div");
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    /* =========================================================
+       SITE CONTENT EDITOR
+    ========================================================= */
+    document.getElementById("saveJsonBtn").addEventListener("click", async () => {
+      const banner = document.getElementById("editor-banner");
+      const content = document.getElementById("json-editor").value;
+      let parsed;
+      try {
+        parsed = JSON.parse(content);
+      } catch (e) {
+        setBanner(banner, "error", `Invalid JSON: ${e.message}`);
+        return;
+      }
+
+      setBanner(banner, "loading", `<span class="spinner"></span> Saving…`);
+      try {
+        const res = await fetch(API.content, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(parsed)
+        });
+        if (!res.ok) throw new Error(`Server responded ${res.status}`);
+        setBanner(banner, "success", "Changes saved.");
+      } catch (e) {
+        setBanner(banner, "error", `Save failed: ${e.message}`);
+      }
+    });
+
+    document.getElementById("resetJsonBtn").addEventListener("click", async () => {
+      const banner = document.getElementById("editor-banner");
+      clearBanner(banner);
+      try {
+        const res = await fetch(API.content);
+        if (!res.ok) throw new Error(`Server responded ${res.status}`);
+        const data = await res.json();
+        document.getElementById("json-editor").value = JSON.stringify(data, null, 2);
+      } catch (e) {
+        setBanner(banner, "error", `Could not load current content: ${e.message}`);
+      }
+    });
+
+    /* =========================================================
+       USER LOOKUP
+    ========================================================= */
+    document.getElementById("lookupBtn").addEventListener("click", async () => {
+      const banner = document.getElementById("lookup-banner");
+      const result = document.getElementById("lookupResult");
+      const query = document.getElementById("lookupInput").value.trim();
+
+      if (!query) {
+        setBanner(banner, "error", "Enter a Discord ID or username to search.");
+        return;
+      }
+
+      result.classList.remove("show");
+      setBanner(banner, "loading", `<span class="spinner"></span> Searching…`);
+
+      try {
+        const res = await fetch(`${API.userLookup}?query=${encodeURIComponent(query)}`);
+        if (!res.ok) throw new Error(`Server responded ${res.status}`);
+        const user = await res.json();
+
+        document.getElementById("lookup-avatar").src = user.avatarUrl || "https://cdn.discordapp.com/embed/avatars/0.png";
+        document.getElementById("lookup-name").textContent = user.displayName || user.username || "Unknown";
+        document.getElementById("lookup-id").textContent = user.id ? `ID · ${user.id}` : "";
+        document.getElementById("lookup-joined").textContent = user.joinedAt || "—";
+        document.getElementById("lookup-warnings").textContent = user.warnings ?? "0";
+
+        result.dataset.userId = user.id || "";
+        result.classList.add("show");
+        clearBanner(banner);
+      } catch (e) {
+        setBanner(banner, "error", `Lookup failed: ${e.message}`);
+      }
+    });
+
+    document.querySelectorAll('#lookupResult [data-action]').forEach(btn => {
+      btn.addEventListener("click", async () => {
+        const action = btn.dataset.action;
+        const userId = document.getElementById("lookupResult").dataset.userId;
+        const banner = document.getElementById("lookup-banner");
+        if (!userId) return;
+
+        if (action === "ban" && !confirm("Ban this user? This action is immediate.")) return;
+
+        setBanner(banner, "loading", `<span class="spinner"></span> Applying ${action}…`);
+        try {
+          const res = await fetch(`${API.userLookup}/${userId}/${action}`, { method: "POST" });
+          if (!res.ok) throw new Error(`Server responded ${res.status}`);
+          setBanner(banner, "success", `${action.charAt(0).toUpperCase() + action.slice(1)} applied.`);
+        } catch (e) {
+          setBanner(banner, "error", `Action failed: ${e.message}`);
+        }
+      });
+    });
+
+    /* =========================================================
+       ANALYTICS
+    ========================================================= */
+    async function loadAnalytics() {
+      const banner = document.getElementById("analytics-banner");
+      setBanner(banner, "loading", `<span class="spinner"></span> Loading analytics…`);
+
+      try {
+        const res = await fetch(API.analytics);
+        if (!res.ok) throw new Error(`Server responded ${res.status}`);
+        const data = await res.json();
+
+        const stats = document.querySelectorAll("#statGrid .stat-card .stat-value");
+        stats[0].textContent = data.totalUsers ?? "—";
+        stats[1].textContent = data.activeToday ?? "—";
+        stats[2].textContent = data.messagesSent ?? "—";
+        stats[3].textContent = data.openReports ?? "—";
+
+        const chart = document.getElementById("barChart");
+        chart.innerHTML = "";
+        const weekly = data.weeklyActivity || [];
+        const max = Math.max(1, ...weekly.map(d => d.value));
+        weekly.forEach(day => {
+          const col = document.createElement("div");
+          col.className = "bar-col";
+          const heightPct = Math.max(2, Math.round((day.value / max) * 100));
+          col.innerHTML = `<div class="bar" style="height:${heightPct}%"></div><div class="bar-label">${day.label}</div>`;
+          chart.appendChild(col);
+        });
+
+        clearBanner(banner);
+      } catch (e) {
+        setBanner(banner, "error", `Could not load analytics: ${e.message}`);
+      }
+    }
+    document.getElementById("refreshAnalyticsBtn").addEventListener("click", loadAnalytics);
+
+    /* =========================================================
+       MODERATION QUEUE
+    ========================================================= */
+    async function loadQueue() {
+      const banner = document.getElementById("queue-banner");
+      const list = document.getElementById("queueList");
+      setBanner(banner, "loading", `<span class="spinner"></span> Loading queue…`);
+
+      try {
+        const res = await fetch(API.queue);
+        if (!res.ok) throw new Error(`Server responded ${res.status}`);
+        const data = await res.json();
+        const reports = data.reports || [];
+
+        if (reports.length === 0) {
+          list.innerHTML = `<div class="empty-state"><div class="hud-tag">All clear</div><div>No pending reports.</div></div>`;
+        } else {
+          list.innerHTML = "";
+          reports.forEach(r => {
+            const item = document.createElement("div");
+            item.className = "queue-item";
+            item.innerHTML = `
+              <div class="queue-info">
+                <div class="queue-user">${r.reportedUser}</div>
+                <div class="queue-reason">${r.reason}</div>
+                <div class="queue-meta">Reported by ${r.reporter} · ${r.timestamp}</div>
+              </div>
+              <div class="btn-group" style="margin-top:0;">
+                <button class="btn btn-sm btn-ghost" data-id="${r.id}" data-resolve="dismiss">Dismiss</button>
+                <button class="btn btn-sm btn-danger" data-id="${r.id}" data-resolve="approve">Approve</button>
+              </div>
+            `;
+            list.appendChild(item);
+          });
+
+          list.querySelectorAll("[data-resolve]").forEach(btn => {
+            btn.addEventListener("click", async () => {
+              const id = btn.dataset.id;
+              const action = btn.dataset.resolve;
+              try {
+                const res = await fetch(`${API.queue}/${id}/resolve`, {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ action })
+                });
+                if (!res.ok) throw new Error(`Server responded ${res.status}`);
+                loadQueue();
+              } catch (e) {
+                setBanner(banner, "error", `Could not resolve report: ${e.message}`);
+              }
+            });
+          });
+        }
+
+        clearBanner(banner);
+      } catch (e) {
+        setBanner(banner, "error", `Could not load queue: ${e.message}`);
+      }
+    }
+    document.getElementById("refreshQueueBtn").addEventListener("click", loadQueue);
+
+    /* =========================================================
+       BROADCAST
+    ========================================================= */
+    document.getElementById("sendBroadcastBtn").addEventListener("click", async () => {
+      const banner = document.getElementById("broadcast-banner");
+      const channel = document.getElementById("broadcastChannel").value;
+      const title = document.getElementById("broadcastTitle").value.trim();
+      const message = document.getElementById("broadcastMessage").value.trim();
+
+      if (!title || !message) {
+        setBanner(banner, "error", "Title and message are required.");
+        return;
+      }
+
+      setBanner(banner, "loading", `<span class="spinner"></span> Sending…`);
+      try {
+        const res = await fetch(API.broadcast, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ channel, title, message })
+        });
+        if (!res.ok) throw new Error(`Server responded ${res.status}`);
+        setBanner(banner, "success", "Broadcast sent.");
+        document.getElementById("broadcastTitle").value = "";
+        document.getElementById("broadcastMessage").value = "";
+      } catch (e) {
+        setBanner(banner, "error", `Broadcast failed: ${e.message}`);
+      }
+    });
+
+    /* =========================================================
+       SETTINGS
+    ========================================================= */
+    async function loadSettings() {
+      const banner = document.getElementById("settings-banner");
+      try {
+        const res = await fetch(API.settings);
+        if (!res.ok) throw new Error(`Server responded ${res.status}`);
+        const data = await res.json();
+        document.getElementById("toggle-maintenance").checked = !!data.maintenanceMode;
+        document.getElementById("toggle-registration").checked = !!data.registrationOpen;
+        document.getElementById("toggle-chat").checked = !!data.chatEnabled;
+        clearBanner(banner);
+      } catch (e) {
+        setBanner(banner, "error", `Could not load settings: ${e.message}`);
+      }
+    }
+
+    document.getElementById("saveSettingsBtn").addEventListener("click", async () => {
+      const banner = document.getElementById("settings-banner");
+      const payload = {
+        maintenanceMode: document.getElementById("toggle-maintenance").checked,
+        registrationOpen: document.getElementById("toggle-registration").checked,
+        chatEnabled: document.getElementById("toggle-chat").checked
+      };
+
+      setBanner(banner, "loading", `<span class="spinner"></span> Saving…`);
+      try {
+        const res = await fetch(API.settings, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        if (!res.ok) throw new Error(`Server responded ${res.status}`);
+        setBanner(banner, "success", "Settings saved.");
+      } catch (e) {
+        setBanner(banner, "error", `Save failed: ${e.message}`);
+      }
+    });
+
+    /* =========================================================
+       INIT
+    ========================================================= */
+    renderIdentity();
+    loadConversations();
   </script>
 </body>
 </html>
