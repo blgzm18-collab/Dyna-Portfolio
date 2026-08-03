@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "echo 'No build step needed for Vercel' && exit 0"
+    "start": "node bot/index.js"
   },
   "dependencies": {
     "resend": "^3.0.0"
@@ -13,4 +14,5 @@
   "engines": {
     "node": "20.x"
   }
+
 }
