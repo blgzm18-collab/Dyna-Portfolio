@@ -29,13 +29,33 @@ export default async function handler(req, res) {
     const discordUser = await userResponse.json();
 
     const MOD_IDS = ["1216256359280939111", "1415809741254426714", "1493371173679927316"];
-    if (MOD_IDS.includes(discordUser.id)) {
-      return res.redirect("/moderator.html");
+
+    if (!MOD_IDS.includes(discordUser.id)) {
+      return res.redirect("/");
     }
 
-    res.redirect("/");
+    // Store just what the dashboard needs to display identity —
+    // no role field, the mod check above already gates access.
+    const identity = {
+      id: discordUser.id,
+      username: discordUser.username,
+      global_name: discordUser.global_name || null,
+      avatar: discordUser.avatar || null
+    };
+
+    const cookieValue = encodeURIComponent(JSON.stringify(identity));
+    const isProd = process.env.NODE_ENV === "production";
+
+    // Readable by client-side JS (no HttpOnly) since moderator.html
+    // parses it directly to render the identity card.
+    res.setHeader(
+      "Set-Cookie",
+      `user=${cookieValue}; Path=/; Max-Age=86400; SameSite=Lax${isProd ? "; Secure" : ""}`
+    );
+
+    return res.redirect("/moderator.html");
   } catch (err) {
     console.error("Callback crash:", err);
-    res.status(500).json({ error: "Internal Server Error", details: err.message });
+    return res.status(500).json({ error: "Internal Server Error", details: err.message });
   }
 }
