@@ -655,6 +655,7 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
   const chatInputArea = document.getElementById("chatInputArea");
   const chatInput     = document.getElementById("chatInput");
   const sendChatBtn   = document.getElementById("sendChatBtn");
+  let firstMessageSent = false;
 
   if (!chatIcon || !chatBox || !chatCloseBtn || !userInfo || !userEmail || !userName ||
       !startChatBtn || !chatMessages || !chatInputArea || !chatInput || !sendChatBtn) {
@@ -715,6 +716,10 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
     try {
       const apiUrl = `${window.location.origin}/api/contact`;
 
+    // Only send the FIRST message to Dyna
+    if (!firstMessageSent) {
+      firstMessageSent = true;
+    
       const response = await fetch(apiUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -724,6 +729,24 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
           message: text
         })
       });
+    
+      const data = await response.json();
+    
+      if (response.ok && data.success) {
+        const deliveredEl = document.createElement('span');
+        deliveredEl.textContent = ' ✓ delivered';
+        deliveredEl.style.color = 'var(--accent)';
+        deliveredEl.style.fontSize = '0.8rem';
+        deliveredEl.style.marginLeft = '6px';
+        msgEl.appendChild(deliveredEl);
+      } else {
+        addMessage("Dynabot", `❌ ${data.error || 'Failed to send message'}`);
+      }
+    } else {
+      // After first message: NO EMAILS, just normal chat
+      addMessage("Dynabot", "Message received.");
+    }
+
 
       const data = await response.json();
 
