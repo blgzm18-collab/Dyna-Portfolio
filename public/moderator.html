@@ -901,53 +901,80 @@
     }
 
     async function loadConversations() {
-      // No live source connected yet — leave sidebar empty until wired up.
-      // Example of how this will work once ready:
-      // const res = await fetch(API.conversations);
-      // const data = await res.json();
-      // renderDmList(data.conversations);
-      renderDmList([]);
+      try {
+        const res = await fetch("/api/conversations/list");
+        const data = await res.json();
+        if (data.success) renderDmList(data.conversations);
+        else console.error("loadConversations error", data);
+      } catch (e) {
+        console.error("loadConversations fetch failed", e);
+      }
     }
 
-    function openConversation(convo) {
+    async function openConversation(convo) {
       activeDmId = convo.id;
       document.querySelectorAll(".dm-item").forEach(i => i.classList.toggle("active", i.dataset.dm === convo.id));
       document.getElementById("chat-user").textContent = `with ${convo.name}`;
-
+    
       const input = document.getElementById("chatInput");
       const sendBtn = document.getElementById("sendBtn");
       input.disabled = false;
       sendBtn.disabled = false;
       input.placeholder = "Type a message...";
-
-      document.getElementById("chatMessages").innerHTML =
-        `<div class="chat-empty"><div class="hud-tag">Loading</div><div>Fetching message history…</div></div>`;
-
-      // Wire this to a real endpoint, e.g. `${API.conversations}/${convo.id}/messages`
+    
+      const chatMessages = document.getElementById("chatMessages");
+      chatMessages.innerHTML = `<div class="chat-empty"><div class="hud-tag">Loading</div><div>Fetching message history…</div></div>`;
+    
+      try {
+        const res = await fetch(`/api/conversations/${convo.id}/messages`);
+        const data = await res.json();
+        if (!data.success) {
+          chatMessages.innerHTML = `<div class="chat-empty"><div class="hud-tag">Error</div><div>Could not load messages.</div></div>`;
+          return;
+        }
+    
+        chatMessages.innerHTML = "";
+        data.messages.forEach(msg => {
+          const msgEl = document.createElement("div");
+          msgEl.className = `message ${msg.sender === "support" ? "support" : "user"}`;
+          msgEl.innerHTML = `<span class="message-label">${msg.sender === "support" ? "You" : convo.name}</span>${escapeHtml(msg.text)}`;
+          chatMessages.appendChild(msgEl);
+        });
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    
+        // refresh sidebar to clear unread badges
+        await loadConversations();
+      } catch (e) {
+        console.error("openConversation failed", e);
+      }
     }
 
     async function sendMessage() {
       const input = document.getElementById("chatInput");
       const message = input.value.trim();
       if (!message || !activeDmId) return;
-
+    
       const chatMessages = document.getElementById("chatMessages");
       const emptyState = chatMessages.querySelector(".chat-empty");
       if (emptyState) emptyState.remove();
-
+    
       const msgEl = document.createElement("div");
       msgEl.className = "message support";
       msgEl.innerHTML = `<span class="message-label">You</span>${escapeHtml(message)}`;
       chatMessages.appendChild(msgEl);
       chatMessages.scrollTop = chatMessages.scrollHeight;
       input.value = "";
-
+    
       try {
-        await fetch(`${API.sendMessage}/${activeDmId}/messages`, {
+        const res = await fetch(`/api/conversations/${activeDmId}/send`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ message })
         });
+        const data = await res.json();
+        if (!data.success) console.error("send failed", data);
+        // refresh sidebar preview
+        await loadConversations();
       } catch (e) {
         console.error("Send failed:", e);
       }
