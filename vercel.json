@@ -15,5 +15,9 @@
       "source": "/",
       "destination": "/index.html"
     }
+  ],
+  "redirects": [
+    { "source": "/talenthub", "destination": "https://create.roblox.com/talent/creators/448054844", "permanent": false },
+    { "source": "/talenthub/", "destination": "https://create.roblox.com/talent/creators/448054844", "permanent": false }
   ]
 }
