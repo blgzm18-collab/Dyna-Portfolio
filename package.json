@@ -1,20 +1,16 @@
-{
-  "name": "dyna-portfolio",
-  "version": "1.0.0",
-  "main": "bot/index.js",
-  "type": "module",
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start"
-  },
-  "dependencies": {
-    "@supabase/supabase-js": "^2.39.0",
-    "discord.js": "^14.15.0",
-    "dotenv": "^16.4.0",
-    "next": "^16.3.6",
-    "nextjs": "^0.0.3",
-    "nodemailer": "^10.0.10",
-    "npm": "^12.1.0"
-  }
-}
+   {
+     "name": "dyna-portfolio",
+     "version": "1.0.0",
+     "main": "bot/index.js",
+     "type": "module",
+     "scripts": {
+       "build": "echo \"Static site: nothing to build\"",
+       "dev": "vercel dev"
+     },
+     "dependencies": {
+       "@supabase/supabase-js": "^2.39.0",
+       "discord.js": "^14.15.0",
+       "dotenv": "^16.4.0",
+       "nodemailer": "^10.0.10"
+     }
+   }
